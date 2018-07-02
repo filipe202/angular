@@ -1,9 +1,9 @@
-<app-Header></app-Header>
+<app-Header (changePage)="currentPage=$event;"></app-Header>
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-        <app-Recipes></app-Recipes>
-        <app-ShoppingList></app-ShoppingList>
+        <app-Recipes *ngIf="currentPage === 'RECIPES'"></app-Recipes>
+        <app-ShoppingList  *ngIf="currentPage === 'SHOPLIST'"></app-ShoppingList>
       </div>
   </div>
 </div>
