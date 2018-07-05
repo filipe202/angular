@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root'
 })
 export class CounterService {
   activations = 0;
@@ -10,8 +10,11 @@ export class CounterService {
 
   activationDone() {
     this.activations++;
+    console.log('activation: ' + activations);
   }
   inaactivationDone() {
     this.inactivations++;
+    console.log('inactivation: ' + inactivations);
+
   }
 }
