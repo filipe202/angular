@@ -8,12 +8,10 @@ import { UsersService } from '../users.service';
 })
 export class ActiveUsersComponent {
   @Input() users: string[];
-  nActivations = 0;
 
   onSetToInactive(id: number) {
     this.usersService.inactivateUser(id);
   }
   constructor(private usersService:  UsersService, private counterService:  CounterService)  {
-    this.nActivations = this.counterService.activations;
   }
 }
