@@ -10,11 +10,11 @@ export class CounterService {
 
   activationDone() {
     this.activations++;
-    console.log('activation: ' + activations);
+    console.log('activation: ' + this.activations);
   }
   inaactivationDone() {
     this.inactivations++;
-    console.log('inactivation: ' + inactivations);
+    console.log('inactivation: ' + this.inactivations);
 
   }
 }
