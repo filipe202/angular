@@ -4,8 +4,7 @@ import { RecipeService } from './recipe.service';
 @Component({
   selector: 'app-Recipes',
   templateUrl: './Recipes.component.html',
-  styleUrls: ['./Recipes.component.css'],
-  providers: [RecipeService]
+  styleUrls: ['./Recipes.component.css']
 })
 export class RecipesComponent implements OnInit {
   constructor() { }

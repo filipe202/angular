@@ -43,5 +43,6 @@ export class AppComponent implements OnInit {
   }
   onSubmit() {
     console.log(this.projectsForm);
+    this.projectsForm.reset();
   }
 }
