@@ -7,9 +7,9 @@ import { ContractStatus, CONTRACT_STATUS_LABELS } from '../../../core/models/con
   styles: [`
     .badge {
       display: inline-flex; align-items: center;
-      padding: 4px 12px; border-radius: 20px;
-      font-size: 12px; font-weight: 600; white-space: nowrap;
-      letter-spacing: 0.01em;
+      padding: 3px 10px; border-radius: 9999px;
+      font-size: 11px; font-weight: 700; white-space: nowrap;
+      letter-spacing: 0.02em;
     }
   `]
 })
@@ -18,20 +18,20 @@ export class StatusBadgeComponent {
   label = computed(() => CONTRACT_STATUS_LABELS[this.status()] ?? this.status());
 
   private colorMap: Record<string, { bg: string; fg: string }> = {
-    [ContractStatus.DRAFT]: { bg: '#f1f5f9', fg: '#475569' },
-    [ContractStatus.PENDING_APPROVAL]: { bg: '#fff7ed', fg: '#c2410c' },
-    [ContractStatus.IN_REVIEW]: { bg: '#eff6ff', fg: '#1d4ed8' },
-    [ContractStatus.APPROVED]: { bg: '#ecfdf5', fg: '#059669' },
-    [ContractStatus.PENDING_SIGNATURE]: { bg: '#fefce8', fg: '#a16207' },
-    [ContractStatus.PARTIALLY_SIGNED]: { bg: '#fffbeb', fg: '#b45309' },
-    [ContractStatus.SIGNED]: { bg: '#ecfdf5', fg: '#059669' },
-    [ContractStatus.ACTIVE]: { bg: '#f0fdf4', fg: '#15803d' },
-    [ContractStatus.EXPIRED]: { bg: '#fef2f2', fg: '#dc2626' },
-    [ContractStatus.CANCELLED]: { bg: '#f1f5f9', fg: '#64748b' },
-    [ContractStatus.RENEWED]: { bg: '#eff6ff', fg: '#2563eb' },
-    [ContractStatus.REJECTED]: { bg: '#fef2f2', fg: '#dc2626' }
+    [ContractStatus.DRAFT]: { bg: 'rgba(122,139,165,0.1)', fg: '#7a8ba5' },
+    [ContractStatus.PENDING_APPROVAL]: { bg: 'rgba(212,160,23,0.08)', fg: '#a07c14' },
+    [ContractStatus.IN_REVIEW]: { bg: 'rgba(59,130,246,0.08)', fg: '#2563eb' },
+    [ContractStatus.APPROVED]: { bg: 'rgba(5,150,105,0.08)', fg: '#059669' },
+    [ContractStatus.PENDING_SIGNATURE]: { bg: 'rgba(212,160,23,0.08)', fg: '#a07c14' },
+    [ContractStatus.PARTIALLY_SIGNED]: { bg: 'rgba(212,160,23,0.08)', fg: '#a07c14' },
+    [ContractStatus.SIGNED]: { bg: 'rgba(5,150,105,0.08)', fg: '#059669' },
+    [ContractStatus.ACTIVE]: { bg: 'rgba(13,148,136,0.08)', fg: '#0d9488' },
+    [ContractStatus.EXPIRED]: { bg: 'rgba(232,93,74,0.06)', fg: '#e85d4a' },
+    [ContractStatus.CANCELLED]: { bg: 'rgba(122,139,165,0.1)', fg: '#7a8ba5' },
+    [ContractStatus.RENEWED]: { bg: 'rgba(59,130,246,0.08)', fg: '#2563eb' },
+    [ContractStatus.REJECTED]: { bg: 'rgba(232,93,74,0.06)', fg: '#e85d4a' }
   };
 
-  bgColor = computed(() => this.colorMap[this.status()]?.bg ?? '#f1f5f9');
-  fgColor = computed(() => this.colorMap[this.status()]?.fg ?? '#475569');
+  bgColor = computed(() => this.colorMap[this.status()]?.bg ?? 'rgba(122,139,165,0.1)');
+  fgColor = computed(() => this.colorMap[this.status()]?.fg ?? '#7a8ba5');
 }

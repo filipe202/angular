@@ -10,99 +10,78 @@ import { WorkflowStep } from '../../../core/models/workflow.model';
     <div class="timeline">
       @for (step of steps(); track step.id) {
         <div class="step" [class]="step.status">
-          <div class="step-indicator">
+          <div class="step-dot">
             @switch (step.status) {
-              @case ('approved') { <mat-icon>check_circle</mat-icon> }
-              @case ('active') { <mat-icon>radio_button_checked</mat-icon> }
-              @case ('rejected') { <mat-icon>cancel</mat-icon> }
-              @default { <mat-icon>radio_button_unchecked</mat-icon> }
+              @case ('approved') { <mat-icon>check</mat-icon> }
+              @case ('active') { <div class="pulse-ring"></div> }
+              @case ('rejected') { <mat-icon>close</mat-icon> }
+              @default { <div class="empty-dot"></div> }
             }
           </div>
-          <div class="step-content">
+          <div class="step-body">
             <span class="step-name">{{ step.name }}</span>
             <span class="step-assignee">{{ step.assignedTo.name }}</span>
             @if (step.completedAt) {
               <span class="step-date">{{ step.completedAt | date:'dd/MM/yyyy' }}</span>
             }
             @if (step.status === 'active') {
-              <span class="step-current">Atual</span>
+              <span class="step-tag">Em curso</span>
             }
           </div>
           @if (!$last) {
-            <div class="connector" [class.completed]="step.status === 'approved'"></div>
+            <div class="line" [class.done]="step.status === 'approved'"></div>
           }
         </div>
       }
     </div>
   `,
   styles: [`
-    .timeline {
-      position: relative;
+    .timeline { position: relative; }
+
+    .step { display: flex; align-items: flex-start; gap: 12px; position: relative; padding-bottom: 22px; }
+    .step:last-child { padding-bottom: 0; }
+
+    .step-dot {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1; flex-shrink: 0; position: relative;
+    }
+    .step-dot mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    .empty-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-light); }
+
+    .step.approved .step-dot { background: rgba(5,150,105,0.1); }
+    .step.approved .step-dot mat-icon { color: var(--ch-emerald); }
+    .step.active .step-dot { background: rgba(13,148,136,0.1); }
+    .step.rejected .step-dot { background: rgba(232,93,74,0.08); }
+    .step.rejected .step-dot mat-icon { color: var(--ch-coral); }
+    .step.pending .step-dot { background: var(--surface-muted); }
+
+    .pulse-ring {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--ch-teal);
+      box-shadow: 0 0 0 0 rgba(13,148,136,0.4);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0% { box-shadow: 0 0 0 0 rgba(13,148,136,0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(13,148,136,0); }
+      100% { box-shadow: 0 0 0 0 rgba(13,148,136,0); }
     }
 
-    .step {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      position: relative;
-      padding-bottom: 24px;
+    .step-body { display: flex; flex-direction: column; gap: 1px; padding-top: 2px; }
+    .step-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .step.pending .step-name { color: var(--text-tertiary); }
+    .step-assignee { font-size: 11px; color: var(--text-tertiary); }
+    .step-date { font-size: 10px; color: var(--text-tertiary); }
+    .step-tag {
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--ch-teal); margin-top: 2px;
     }
 
-    .step:last-child {
-      padding-bottom: 0;
+    .line {
+      position: absolute; left: 12px; top: 28px; bottom: 0; width: 2px;
+      background: var(--border-light);
     }
-
-    .step-indicator {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1;
-    }
-
-    .step.approved .step-indicator mat-icon { color: #4CAF50; }
-    .step.active .step-indicator mat-icon { color: #2196F3; }
-    .step.rejected .step-indicator mat-icon { color: #F44336; }
-    .step.pending .step-indicator mat-icon { color: #BDBDBD; }
-
-    .step-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .step-name {
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .step-assignee {
-      font-size: 12px;
-      color: #666;
-    }
-
-    .step-date {
-      font-size: 11px;
-      color: #999;
-    }
-
-    .step-current {
-      font-size: 11px;
-      color: #2196F3;
-      font-weight: 500;
-    }
-
-    .connector {
-      position: absolute;
-      left: 11px;
-      top: 28px;
-      bottom: 0;
-      width: 2px;
-      background: #E0E0E0;
-    }
-
-    .connector.completed {
-      background: #4CAF50;
-    }
+    .line.done { background: var(--ch-emerald); }
   `]
 })
 export class WorkflowTimelineComponent {

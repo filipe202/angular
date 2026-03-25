@@ -38,8 +38,10 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard([Role.SIGNER])],
     loadComponent: () => import('./shared/components/layout/shell.component').then(m => m.ShellComponent),
     children: [
-      { path: '', redirectTo: 'pending', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', loadComponent: () => import('./features/signer/dashboard/signer-dashboard.component').then(m => m.SignerDashboardComponent) },
       { path: 'pending', loadComponent: () => import('./features/signer/pending-signatures/pending-signatures.component').then(m => m.PendingSignaturesComponent) },
+      { path: 'contracts/:id', loadComponent: () => import('./features/signer/contract-view/signer-contract-view.component').then(m => m.SignerContractViewComponent) },
       { path: 'sign/:id', loadComponent: () => import('./features/signer/sign-contract/sign-contract.component').then(m => m.SignContractComponent) },
       { path: 'history', loadComponent: () => import('./features/signer/signature-history/signature-history.component').then(m => m.SignatureHistoryComponent) }
     ]

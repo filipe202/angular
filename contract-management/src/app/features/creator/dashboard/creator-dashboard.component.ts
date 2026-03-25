@@ -1,6 +1,5 @@
 import { Component, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -13,127 +12,188 @@ import { ContractStatus, CONTRACT_TYPE_LABELS } from '../../../core/models/contr
 
 @Component({
   selector: 'app-creator-dashboard',
-  imports: [RouterLink, MatCardModule, MatIconModule, MatButtonModule, StatusBadgeComponent, RelativeDatePipe, CurrencyPtPipe],
+  imports: [RouterLink, MatIconModule, MatButtonModule, StatusBadgeComponent, RelativeDatePipe, CurrencyPtPipe],
   template: `
-    <div class="dashboard">
-      <div class="dashboard-header">
-        <h2>Os Meus Contratos</h2>
-        <a mat-raised-button color="primary" routerLink="/creator/contracts/new">
+    <div class="dash">
+      <!-- Header -->
+      <div class="dash-header animate-in">
+        <div>
+          <h1>Os Meus Contratos</h1>
+          <p class="subtitle">Acompanhe o estado dos seus contratos</p>
+        </div>
+        <a mat-raised-button color="primary" routerLink="/creator/contracts/new" class="new-btn">
           <mat-icon>add</mat-icon> Novo Contrato
         </a>
       </div>
 
-      <!-- KPI Cards -->
-      <div class="kpi-grid">
-        <mat-card class="kpi-card" routerLink="/creator/contracts" [queryParams]="{status: 'draft'}">
-          <span class="kpi-value">{{ drafts().length }}</span>
-          <span class="kpi-label">Rascunhos</span>
-          <span class="kpi-action">Retomar &rarr;</span>
-        </mat-card>
-        <mat-card class="kpi-card">
-          <span class="kpi-value">{{ inApproval().length }}</span>
-          <span class="kpi-label">Em Aprovação</span>
-        </mat-card>
-        <mat-card class="kpi-card" routerLink="/creator/contracts" [queryParams]="{status: 'rejected'}">
-          <span class="kpi-value">{{ rejected().length }}</span>
-          <span class="kpi-label">Rejeitados</span>
-          <span class="kpi-action">Corrigir &rarr;</span>
-        </mat-card>
-        <mat-card class="kpi-card">
-          <span class="kpi-value">{{ completed().length }}</span>
-          <span class="kpi-label">Concluídos</span>
-        </mat-card>
+      <!-- KPIs -->
+      <div class="kpi-row animate-in animate-delay-1">
+        <a class="kpi" routerLink="/creator/contracts" [queryParams]="{status: 'draft'}">
+          <div class="kpi-icon draft"><mat-icon>edit_note</mat-icon></div>
+          <div class="kpi-num">{{ drafts().length }}</div>
+          <div class="kpi-label">Rascunhos</div>
+          @if (drafts().length > 0) { <span class="kpi-link">Retomar &rarr;</span> }
+        </a>
+        <div class="kpi">
+          <div class="kpi-icon review"><mat-icon>hourglass_top</mat-icon></div>
+          <div class="kpi-num">{{ inApproval().length }}</div>
+          <div class="kpi-label">Em Aprovação</div>
+        </div>
+        <a class="kpi" routerLink="/creator/contracts" [queryParams]="{status: 'rejected'}">
+          <div class="kpi-icon rejected"><mat-icon>reply</mat-icon></div>
+          <div class="kpi-num">{{ rejected().length }}</div>
+          <div class="kpi-label">Devolvidos</div>
+          @if (rejected().length > 0) { <span class="kpi-link warn">Corrigir &rarr;</span> }
+        </a>
+        <div class="kpi">
+          <div class="kpi-icon done"><mat-icon>verified</mat-icon></div>
+          <div class="kpi-num">{{ completed().length }}</div>
+          <div class="kpi-label">Concluídos</div>
+        </div>
       </div>
 
-      <!-- Recent Contracts -->
-      <h3>Contratos Recentes</h3>
-      @for (contract of myContracts().slice(0, 5); track contract.id) {
-        <mat-card class="contract-card" [routerLink]="'/creator/contracts/' + contract.id">
-          <div class="contract-top">
-            <h4>{{ contract.title }}</h4>
-            <app-status-badge [status]="contract.status" />
-          </div>
-          <div class="contract-meta">
-            <span>{{ getTypeLabel(contract.type) }}</span>
-            <span>{{ contract.value | currencyPt }}</span>
-            <span>Criado {{ contract.createdAt | relativeDate }}</span>
-          </div>
+      <!-- Contract list -->
+      <div class="section animate-in animate-delay-3">
+        <h2 class="section-title">Recentes</h2>
 
-          @if (contract.status === 'pending_approval' || contract.status === 'in_review') {
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="getProgress(contract.id)"></div>
+        @for (contract of myContracts().slice(0, 6); track contract.id; let i = $index) {
+          <a class="contract-row" [routerLink]="'/creator/contracts/' + contract.id"
+             [style.animation-delay]="((i + 4) * 60) + 'ms'">
+            <div class="row-left">
+              <div class="row-type">{{ getTypeLabel(contract.type) }}</div>
+              <h3>{{ contract.title }}</h3>
+              <div class="row-meta">
+                <span>{{ contract.value | currencyPt }}</span>
+                <span class="sep">&middot;</span>
+                <span>{{ contract.createdAt | relativeDate }}</span>
+              </div>
             </div>
-            <span class="progress-text">{{ getProgress(contract.id) }}% concluído</span>
-          }
 
-          @if (contract.status === 'rejected' && contract.rejectionReason) {
-            <div class="rejection">
-              <mat-icon>info</mat-icon>
-              <span>{{ contract.rejectionReason }}</span>
+            <div class="row-right">
+              <app-status-badge [status]="contract.status" />
+
+              @if (contract.status === 'pending_approval' || contract.status === 'in_review') {
+                <div class="progress-mini">
+                  <div class="progress-track">
+                    <div class="progress-fill" [style.width.%]="getProgress(contract.id)"></div>
+                  </div>
+                  <span class="progress-pct">{{ getProgress(contract.id) }}%</span>
+                </div>
+              }
+
+              @if (contract.status === 'rejected' && contract.rejectionReason) {
+                <div class="rejection-hint">
+                  <mat-icon>info_outline</mat-icon>
+                  {{ contract.rejectionReason }}
+                </div>
+              }
             </div>
-          }
 
-          @if (contract.status === 'draft') {
-            <div class="draft-action">
-              <span class="draft-link">Continuar &rarr;</span>
-            </div>
-          }
-        </mat-card>
-      }
-
-      @if (myContracts().length === 0) {
-        <mat-card class="empty">
-          <mat-icon>folder_open</mat-icon>
-          <h4>Ainda não tem contratos</h4>
-          <p>Comece por criar o seu primeiro contrato.</p>
-          <a mat-raised-button color="primary" routerLink="/creator/contracts/new">
-            <mat-icon>add</mat-icon> Criar Contrato
+            <mat-icon class="row-arrow">chevron_right</mat-icon>
           </a>
-        </mat-card>
-      }
+        }
+
+        @if (myContracts().length === 0) {
+          <div class="empty">
+            <div class="empty-icon"><mat-icon>note_add</mat-icon></div>
+            <h3>Ainda sem contratos</h3>
+            <p>Comece por criar o seu primeiro contrato.</p>
+            <a mat-raised-button color="primary" routerLink="/creator/contracts/new">
+              <mat-icon>add</mat-icon> Criar Contrato
+            </a>
+          </div>
+        }
+      </div>
     </div>
   `,
   styles: [`
-    .dashboard { max-width: 900px; }
-    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .dashboard-header h2 { margin: 0; font-weight: 400; }
+    .dash { max-width: 960px; margin: 0 auto; }
 
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-    .kpi-card {
-      padding: 20px; text-align: center; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    .dash-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
+    .subtitle { margin: 4px 0 0; font-size: 14px; color: var(--text-tertiary); }
+    .new-btn { height: 40px !important; font-size: 13px !important; border-radius: var(--radius-sm) !important; }
+
+    /* ── KPI Row ── */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .kpi {
+      background: var(--surface-card); border-radius: var(--radius-lg); padding: 18px 20px;
+      border: 1px solid var(--border-subtle); display: flex; flex-direction: column; align-items: center;
+      text-align: center; text-decoration: none; color: inherit;
+      transition: all var(--t-normal); cursor: default;
     }
-    .kpi-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .kpi-value { font-size: 32px; font-weight: 600; color: #1a237e; }
-    .kpi-label { font-size: 13px; color: #888; }
-    .kpi-action { font-size: 12px; color: #1a237e; margin-top: 4px; }
-
-    h3 { font-weight: 400; color: #555; margin-bottom: 16px; }
-
-    .contract-card { padding: 20px; margin-bottom: 12px; cursor: pointer; }
-    .contract-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-
-    .contract-top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .contract-top h4 { margin: 0; flex: 1; font-weight: 500; }
-
-    .contract-meta { display: flex; gap: 16px; font-size: 13px; color: #888; }
-
-    .progress-bar { height: 6px; background: #e0e0e0; border-radius: 3px; margin-top: 12px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #1a237e; border-radius: 3px; transition: width 0.3s; }
-    .progress-text { font-size: 11px; color: #888; margin-top: 4px; display: block; }
-
-    .rejection {
-      display: flex; align-items: flex-start; gap: 8px; margin-top: 12px;
-      padding: 10px; background: #FFF3E0; border-radius: 8px; font-size: 13px; color: #E65100;
+    a.kpi { cursor: pointer; }
+    a.kpi:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--ch-teal); }
+    .kpi-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
     }
-    .rejection mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+    .kpi-icon mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .kpi-icon.draft { background: rgba(122,139,165,0.1); }
+    .kpi-icon.draft mat-icon { color: var(--text-tertiary); }
+    .kpi-icon.review { background: var(--ch-amber-subtle); }
+    .kpi-icon.review mat-icon { color: var(--ch-amber); }
+    .kpi-icon.rejected { background: rgba(232,93,74,0.06); }
+    .kpi-icon.rejected mat-icon { color: var(--ch-coral); }
+    .kpi-icon.done { background: rgba(5,150,105,0.08); }
+    .kpi-icon.done mat-icon { color: var(--ch-emerald); }
+    .kpi-num { font-size: 28px; font-weight: 800; color: var(--text-primary); line-height: 1; }
+    .kpi-label { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; font-weight: 500; }
+    .kpi-link { font-size: 11px; font-weight: 700; color: var(--ch-teal); margin-top: 8px; }
+    .kpi-link.warn { color: var(--ch-coral); }
 
-    .draft-action { margin-top: 12px; }
-    .draft-link { color: #1a237e; font-size: 13px; font-weight: 500; }
+    /* ── Section ── */
+    .section-title { font-size: 14px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 12px; }
 
-    .empty { text-align: center; padding: 48px; color: #999; }
-    .empty mat-icon { font-size: 64px; width: 64px; height: 64px; color: #e0e0e0; }
-    .empty h4 { color: #666; }
+    /* ── Contract Rows ── */
+    .contract-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px; margin-bottom: 8px;
+      background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+      text-decoration: none; color: inherit;
+      transition: all var(--t-normal);
+      animation: fadeInUp 0.4s var(--ease-out) both;
+    }
+    .contract-row:hover { box-shadow: var(--shadow-md); border-color: var(--ch-teal); }
+    .contract-row:hover .row-arrow { opacity: 1; color: var(--ch-teal); }
+
+    .row-left { flex: 1; min-width: 0; }
+    .row-type {
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--ch-teal); margin-bottom: 4px;
+    }
+    .row-left h3 { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-meta { font-size: 12px; color: var(--text-tertiary); display: flex; gap: 6px; }
+    .sep { color: var(--border-light); }
+
+    .row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+    .row-arrow { color: var(--text-tertiary); opacity: 0; transition: all 200ms; font-size: 20px !important; }
+
+    .progress-mini { display: flex; align-items: center; gap: 6px; }
+    .progress-track { width: 60px; height: 4px; background: var(--surface-muted); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--ch-teal); border-radius: 2px; transition: width 0.6s var(--ease-out); }
+    .progress-pct { font-size: 10px; font-weight: 700; color: var(--text-tertiary); }
+
+    .rejection-hint {
+      display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ch-coral);
+      max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .rejection-hint mat-icon { font-size: 14px; width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Empty ── */
+    .empty {
+      text-align: center; padding: 60px 24px;
+      background: var(--surface-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+    }
+    .empty-icon {
+      width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 16px;
+      background: var(--ch-teal-subtle);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .empty-icon mat-icon { font-size: 24px; width: 24px; height: 24px; color: var(--ch-teal); }
+    .empty h3 { margin: 0 0 4px; font-size: 17px; font-weight: 700; color: var(--text-primary); }
+    .empty p { color: var(--text-tertiary); font-size: 14px; margin: 0 0 20px; }
   `]
 })
 export class CreatorDashboardComponent {

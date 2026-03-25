@@ -2,13 +2,10 @@ import { Component, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SignatureService } from '../../../core/services/signature.service';
 import { ContractService } from '../../../core/services/contract.service';
@@ -16,137 +13,204 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
 
 @Component({
   selector: 'app-sign-contract',
-  imports: [RouterLink, FormsModule, DatePipe, MatCardModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatDividerModule, MatDialogModule, MatSnackBarModule, CurrencyPtPipe],
+  imports: [RouterLink, FormsModule, DatePipe, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule, CurrencyPtPipe],
   template: `
     <div class="sign">
-      <a routerLink="/signer/pending" class="back-link">
+      <a routerLink="/signer/pending" class="back animate-in">
         <mat-icon>arrow_back</mat-icon> Voltar
       </a>
 
       @if (signature(); as sig) {
-        <div class="sign-header">
-          <h2>{{ sig.contractTitle }}</h2>
-          <span class="badge pending">Aguarda Assinatura</span>
+        <div class="sign-header animate-in animate-delay-1">
+          <h1>{{ sig.contractTitle }}</h1>
+          <span class="status-tag">Aguarda Assinatura</span>
         </div>
 
-        <div class="sign-grid">
+        <div class="sign-layout animate-in animate-delay-2">
           <!-- Document Preview -->
-          <mat-card class="preview-card">
-            <div class="preview-placeholder">
-              <mat-icon>picture_as_pdf</mat-icon>
-              <h3>Pré-visualização do Documento</h3>
-              <p>O documento será apresentado aqui via edoclink.</p>
-              <div class="mock-viewer">
-                @if (contract(); as c) {
+          <div class="preview-panel">
+            <div class="preview-area">
+              <div class="preview-icon">
+                <mat-icon>picture_as_pdf</mat-icon>
+              </div>
+              <h3>Pré-visualização</h3>
+              <p>O documento será apresentado aqui via integração edoclink.</p>
+              @if (contract(); as c) {
+                <div class="doc-list">
                   @for (doc of c.documents; track doc.id) {
-                    <div class="mock-page">
+                    <div class="doc-item">
                       <mat-icon>description</mat-icon>
                       <span>{{ doc.name }}</span>
                     </div>
                   }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="side">
+            <!-- Details -->
+            <div class="side-section">
+              <h3 class="side-title">Detalhes</h3>
+              <div class="detail-row"><span class="d-label">Tipo</span><span class="d-val">{{ sig.contractType }}</span></div>
+              <div class="detail-row"><span class="d-label">Valor</span><span class="d-val">{{ sig.contractValue | currencyPt }}</span></div>
+              @if (contract(); as c) {
+                <div class="detail-row"><span class="d-label">Início</span><span class="d-val">{{ c.startDate | date:'dd/MM/yyyy' }}</span></div>
+                <div class="detail-row"><span class="d-label">Fim</span><span class="d-val">{{ c.endDate | date:'dd/MM/yyyy' }}</span></div>
+                <div class="detail-row"><span class="d-label">Departamento</span><span class="d-val">{{ c.department }}</span></div>
+              }
+            </div>
+
+            @if (contract(); as c) {
+              <!-- Parties -->
+              <div class="side-section">
+                <h3 class="side-title">Partes</h3>
+                @for (party of c.parties; track party.id) {
+                  <div class="party-mini">
+                    <div class="party-dot">{{ party.name[0] }}</div>
+                    <div><span class="party-name">{{ party.name }}</span><span class="party-role">{{ party.role }}</span></div>
+                  </div>
                 }
               </div>
-            </div>
-          </mat-card>
 
-          <!-- Details + Actions -->
-          <div class="side-panel">
-            <mat-card>
-              <mat-card-header><mat-card-title>Detalhes</mat-card-title></mat-card-header>
-              <mat-card-content>
-                <div class="info-item"><span class="label">Tipo</span><span>{{ sig.contractType }}</span></div>
-                <div class="info-item"><span class="label">Valor</span><span>{{ sig.contractValue | currencyPt }}</span></div>
-                @if (contract(); as c) {
-                  <div class="info-item"><span class="label">Início</span><span>{{ c.startDate | date:'dd/MM/yyyy' }}</span></div>
-                  <div class="info-item"><span class="label">Fim</span><span>{{ c.endDate | date:'dd/MM/yyyy' }}</span></div>
-                  <div class="info-item"><span class="label">Departamento</span><span>{{ c.department }}</span></div>
-
-                  <mat-divider />
-
-                  <h4>Partes</h4>
-                  @for (party of c.parties; track party.id) {
-                    <div class="party">{{ party.name }} ({{ party.role }})</div>
-                  }
-
-                  <mat-divider />
-
-                  <h4>Documentos</h4>
-                  @for (doc of c.documents; track doc.id) {
-                    <div class="doc"><mat-icon>description</mat-icon> {{ doc.name }}</div>
-                  }
+              <!-- Documents -->
+              <div class="side-section">
+                <h3 class="side-title">Documentos</h3>
+                @for (doc of c.documents; track doc.id) {
+                  <div class="doc-mini"><mat-icon>description</mat-icon> {{ doc.name }}</div>
                 }
-              </mat-card-content>
-            </mat-card>
+              </div>
+            }
 
-            <mat-card class="actions-card">
+            <!-- Actions -->
+            <div class="side-actions">
               @if (!showDeclineForm()) {
                 <button mat-raised-button color="primary" class="sign-btn" (click)="onSign()">
-                  <mat-icon>draw</mat-icon> Assinar
+                  <mat-icon>draw</mat-icon> Assinar Contrato
                 </button>
-                <button mat-stroked-button color="warn" (click)="showDeclineForm.set(true)">
+                <button mat-stroked-button class="decline-btn" (click)="showDeclineForm.set(true)">
                   <mat-icon>close</mat-icon> Recusar
                 </button>
               } @else {
-                <mat-form-field appearance="outline" class="full-width">
+                <mat-form-field appearance="outline" class="reason-field">
                   <mat-label>Motivo da recusa</mat-label>
                   <textarea matInput [(ngModel)]="declineReason" rows="3" placeholder="Indique o motivo..."></textarea>
                 </mat-form-field>
-                <div class="decline-actions">
-                  <button mat-raised-button color="warn" [disabled]="!declineReason" (click)="onDecline()">Confirmar Recusa</button>
+                <div class="decline-btns">
+                  <button mat-raised-button class="confirm-decline" [disabled]="!declineReason" (click)="onDecline()">
+                    Confirmar Recusa
+                  </button>
                   <button mat-stroked-button (click)="showDeclineForm.set(false)">Cancelar</button>
                 </div>
               }
-            </mat-card>
+            </div>
           </div>
         </div>
       } @else {
-        <mat-card class="not-found">
+        <div class="not-found animate-in">
           <mat-icon>search_off</mat-icon>
-          <h3>Pedido de assinatura não encontrado</h3>
-        </mat-card>
+          <h2>Pedido não encontrado</h2>
+          <a mat-stroked-button routerLink="/signer/pending">Voltar</a>
+        </div>
       }
     </div>
   `,
   styles: [`
-    .sign { max-width: 1100px; }
-    .back-link { display: inline-flex; align-items: center; gap: 4px; color: #666; text-decoration: none; margin-bottom: 16px; font-size: 14px; }
-    .back-link:hover { color: #1a237e; }
-    .sign-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-    .sign-header h2 { margin: 0; font-weight: 400; flex: 1; }
-    .badge { padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 500; }
-    .badge.pending { background: #FFF3E0; color: #E65100; }
+    .sign { max-width: 1100px; margin: 0 auto; }
+    .back {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--text-tertiary); text-decoration: none; font-size: 13px; font-weight: 500;
+      margin-bottom: 18px; transition: color 200ms;
+    }
+    .back:hover { color: var(--ch-teal); }
+    .back mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
-    .sign-grid { display: grid; grid-template-columns: 1fr 380px; gap: 16px; }
+    .sign-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .sign-header h1 { margin: 0; font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; flex: 1; }
+    .status-tag {
+      font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: var(--radius-full);
+      background: var(--ch-amber-subtle); color: #a07c14;
+    }
 
-    .preview-card { min-height: 500px; }
-    .preview-placeholder {
+    .sign-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
+
+    .preview-panel {
+      background: var(--surface-card); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); min-height: 500px;
+    }
+    .preview-area {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 48px; text-align: center; color: #666; height: 100%;
-      background: #fafafa;
+      padding: 48px; text-align: center; height: 100%;
     }
-    .preview-placeholder mat-icon { font-size: 64px; width: 64px; height: 64px; color: #1a237e; opacity: 0.4; }
-    .preview-placeholder h3 { color: #555; }
-    .mock-viewer { margin-top: 16px; }
-    .mock-page {
-      display: flex; align-items: center; gap: 8px;
-      padding: 12px; margin: 4px 0; background: white; border-radius: 8px; border: 1px solid #e0e0e0;
+    .preview-icon {
+      width: 64px; height: 64px; border-radius: 16px; margin-bottom: 16px;
+      background: var(--ch-teal-subtle);
+      display: flex; align-items: center; justify-content: center;
     }
-    .mock-page mat-icon { color: #1a237e; }
+    .preview-icon mat-icon { font-size: 28px; width: 28px; height: 28px; color: var(--ch-teal); }
+    .preview-area h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .preview-area p { margin: 0; font-size: 13px; color: var(--text-tertiary); }
+    .doc-list { margin-top: 20px; width: 100%; max-width: 280px; }
+    .doc-item {
+      display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+      background: var(--surface-bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+      margin-bottom: 6px; font-size: 13px; color: var(--text-primary);
+    }
+    .doc-item mat-icon { color: var(--ch-teal); font-size: 18px; width: 18px; height: 18px; }
 
-    .side-panel { display: flex; flex-direction: column; gap: 16px; }
-    .info-item { display: flex; flex-direction: column; margin-bottom: 12px; }
-    .label { font-size: 12px; color: #888; margin-bottom: 2px; }
-    h4 { margin: 12px 0 8px; font-weight: 500; color: #555; font-size: 14px; }
-    .party { font-size: 14px; margin-bottom: 4px; }
-    .doc { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 4px; }
+    .side { display: flex; flex-direction: column; gap: 0; }
+    .side-section {
+      padding: 16px 18px; background: var(--surface-card);
+      border: 1px solid var(--border-subtle); border-bottom: none;
+    }
+    .side-section:first-child { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .side-title { margin: 0 0 10px; font-size: 12px; font-weight: 800; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .d-label { font-size: 12px; color: var(--text-tertiary); }
+    .d-val { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 
-    .actions-card { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-    .sign-btn { height: 48px; font-size: 16px; }
-    .full-width { width: 100%; }
-    .decline-actions { display: flex; gap: 8px; }
+    .party-mini { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .party-dot {
+      width: 28px; height: 28px; border-radius: 7px; background: var(--ch-navy);
+      color: var(--ch-teal-light); font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .party-name { font-size: 13px; font-weight: 600; color: var(--text-primary); display: block; }
+    .party-role { font-size: 10px; color: var(--text-tertiary); }
 
-    .not-found { text-align: center; padding: 48px; color: #999; }
-    .not-found mat-icon { font-size: 64px; width: 64px; height: 64px; }
+    .doc-mini {
+      display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .doc-mini mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--ch-teal); }
+
+    .side-actions {
+      padding: 18px; background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .sign-btn {
+      width: 100%; height: 48px !important; font-size: 15px !important;
+      border-radius: var(--radius-md) !important; font-weight: 700 !important;
+    }
+    .decline-btn {
+      width: 100%;
+      border-color: rgba(232,93,74,0.2) !important;
+      color: var(--ch-coral) !important;
+    }
+    .decline-btn:hover { background: rgba(232,93,74,0.04) !important; }
+    .reason-field { width: 100%; }
+    .decline-btns { display: flex; gap: 8px; }
+    .confirm-decline {
+      background: var(--ch-coral) !important; color: white !important;
+      border-radius: var(--radius-sm) !important;
+    }
+
+    .not-found { text-align: center; padding: 80px 24px; }
+    .not-found mat-icon { font-size: 64px; width: 64px; height: 64px; color: var(--border-light); }
+    .not-found h2 { color: var(--text-secondary); font-weight: 500; }
   `]
 })
 export class SignContractComponent {
