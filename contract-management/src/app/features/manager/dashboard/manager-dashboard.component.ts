@@ -1,11 +1,9 @@
 import { Component, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
-import { MatChipsModule } from '@angular/material/chips';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { ContractService } from '../../../core/services/contract.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -15,229 +13,285 @@ import { CONTRACT_STATUS_LABELS, CONTRACT_TYPE_LABELS } from '../../../core/mode
 
 @Component({
   selector: 'app-manager-dashboard',
-  imports: [RouterLink, DatePipe, MatCardModule, MatIconModule, MatButtonModule, MatListModule, MatChipsModule, StatusBadgeComponent, RelativeDatePipe, CurrencyPtPipe],
+  imports: [RouterLink, DatePipe, DecimalPipe, MatCardModule, MatIconModule, MatButtonModule, RelativeDatePipe, CurrencyPtPipe],
   template: `
     <div class="dashboard">
-      <h2>Bom dia, Maria</h2>
+      <div class="page-header animate-in">
+        <div>
+          <h1>Bom dia, Maria</h1>
+          <p class="page-subtitle">Aqui está o resumo da sua gestão de contratos</p>
+        </div>
+        <div class="header-actions">
+          <button mat-raised-button color="primary" routerLink="/manager/approvals">
+            <mat-icon>task_alt</mat-icon>
+            {{ kpis().pendingApproval }} pendentes
+          </button>
+        </div>
+      </div>
 
       <!-- KPI Cards -->
       <div class="kpi-grid">
-        @for (kpi of kpiCards(); track kpi.label) {
-          <mat-card class="kpi-card">
-            <div class="kpi-icon" [style.background]="kpi.color + '20'" [style.color]="kpi.color">
-              <mat-icon>{{ kpi.icon }}</mat-icon>
-            </div>
-            <div class="kpi-info">
-              <span class="kpi-value">{{ kpi.prefix ?? '' }}{{ kpi.value }}{{ kpi.suffix ?? '' }}</span>
-              <span class="kpi-label">{{ kpi.label }}</span>
+        @for (kpi of kpiCards(); track kpi.label; let i = $index) {
+          <div class="kpi-card animate-in" [style.animation-delay]="(i * 80) + 'ms'">
+            <div class="kpi-top">
+              <div class="kpi-icon-wrap" [style.background]="kpi.gradient">
+                <mat-icon>{{ kpi.icon }}</mat-icon>
+              </div>
               @if (kpi.trend) {
-                <span class="kpi-trend" [class.positive]="kpi.trend > 0" [class.negative]="kpi.trend < 0">
-                  {{ kpi.trend > 0 ? '+' : '' }}{{ kpi.trend }}{{ kpi.trendSuffix ?? '' }}
+                <span class="kpi-trend" [class.up]="kpi.trend > 0" [class.down]="kpi.trend < 0">
+                  <mat-icon>{{ kpi.trend > 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+                  {{ kpi.trend > 0 ? '+' : '' }}{{ kpi.trend }}{{ kpi.trendSuffix }}
                 </span>
               }
             </div>
-          </mat-card>
+            <div class="kpi-value">{{ kpi.prefix ?? '' }}{{ kpi.value | number }}{{ kpi.suffix ?? '' }}</div>
+            <div class="kpi-label">{{ kpi.label }}</div>
+            <div class="kpi-sparkline" [style.background]="kpi.sparkBg"></div>
+          </div>
         }
       </div>
 
-      <div class="charts-row">
-        <!-- Contracts by Status -->
-        <mat-card class="chart-card">
-          <mat-card-header>
-            <mat-card-title>Contratos por Estado</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
+      <div class="grid-2 animate-in animate-delay-4">
+        <!-- Status Chart -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Contratos por Estado</h3>
+            <span class="card-badge">{{ kpis().totalContracts }} total</span>
+          </div>
+          <div class="card-body">
             @for (item of kpis().contractsByStatus; track item.status) {
-              <div class="bar-item">
-                <span class="bar-label">{{ getStatusLabel(item.status) }}</span>
-                <div class="bar-track">
-                  <div class="bar-fill" [style.width.%]="(item.count / maxStatusCount()) * 100" [style.background]="getStatusColor(item.status)"></div>
+              <div class="h-bar-row">
+                <span class="h-bar-label">{{ getStatusLabel(item.status) }}</span>
+                <div class="h-bar-track">
+                  <div class="h-bar-fill" [style.width.%]="(item.count / maxStatus()) * 100" [style.background]="getBarGradient(item.status)"></div>
                 </div>
-                <span class="bar-count">{{ item.count }}</span>
+                <span class="h-bar-value">{{ item.count }}</span>
               </div>
             }
-          </mat-card-content>
-        </mat-card>
+          </div>
+        </div>
 
-        <!-- Contracts by Type -->
-        <mat-card class="chart-card">
-          <mat-card-header>
-            <mat-card-title>Contratos por Tipo</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
+        <!-- Type Chart -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Contratos por Tipo</h3>
+          </div>
+          <div class="card-body">
             @for (item of kpis().contractsByType; track item.type) {
-              <div class="bar-item">
-                <span class="bar-label">{{ getTypeLabel(item.type) }}</span>
-                <div class="bar-track">
-                  <div class="bar-fill" [style.width.%]="(item.count / maxTypeCount()) * 100" style="background: #3949ab"></div>
+              <div class="h-bar-row">
+                <span class="h-bar-label">{{ getTypeLabel(item.type) }}</span>
+                <div class="h-bar-track">
+                  <div class="h-bar-fill type-fill" [style.width.%]="(item.count / maxType()) * 100"></div>
                 </div>
-                <span class="bar-count">{{ item.count }}</span>
+                <span class="h-bar-value">{{ item.count }}</span>
               </div>
             }
-          </mat-card-content>
-        </mat-card>
+          </div>
+        </div>
       </div>
 
-      <div class="charts-row">
+      <div class="grid-2 animate-in animate-delay-6">
         <!-- Monthly Trend -->
-        <mat-card class="chart-card">
-          <mat-card-header>
-            <mat-card-title>Tendência Mensal</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="trend-chart">
+        <div class="card">
+          <div class="card-header">
+            <h3>Tendência Mensal</h3>
+            <div class="legend">
+              <span class="legend-dot created"></span> Criados
+              <span class="legend-dot signed"></span> Assinados
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-area">
               @for (m of kpis().monthlyTrend; track m.month) {
-                <div class="trend-col">
-                  <div class="trend-bars">
-                    <div class="trend-bar created" [style.height.px]="m.created * 6" title="Criados: {{ m.created }}"></div>
-                    <div class="trend-bar signed" [style.height.px]="m.signed * 6" title="Assinados: {{ m.signed }}"></div>
+                <div class="chart-col">
+                  <div class="bars-wrap">
+                    <div class="bar bar-created" [style.height.px]="m.created * 7" [title]="'Criados: ' + m.created">
+                      <span class="bar-tooltip">{{ m.created }}</span>
+                    </div>
+                    <div class="bar bar-signed" [style.height.px]="m.signed * 7" [title]="'Assinados: ' + m.signed">
+                      <span class="bar-tooltip">{{ m.signed }}</span>
+                    </div>
                   </div>
-                  <span class="trend-label">{{ m.month }}</span>
+                  <span class="chart-label">{{ m.month }}</span>
                 </div>
               }
             </div>
-            <div class="trend-legend">
-              <span class="legend-item"><span class="dot created"></span> Criados</span>
-              <span class="legend-item"><span class="dot signed"></span> Assinados</span>
-            </div>
-          </mat-card-content>
-        </mat-card>
+          </div>
+        </div>
 
-        <!-- Expiring Soon -->
-        <mat-card class="chart-card">
-          <mat-card-header>
-            <mat-card-title>A Expirar em Breve</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            @for (contract of expiringContracts(); track contract.id) {
-              <div class="expiring-item" [routerLink]="'/manager/contracts/' + contract.id">
-                <mat-icon [class.urgent]="daysUntilExpiry(contract.endDate) <= 7">warning</mat-icon>
-                <div class="expiring-info">
-                  <span class="expiring-title">{{ contract.title }}</span>
-                  <span class="expiring-date">Expira {{ contract.endDate | relativeDate }}</span>
+        <!-- Expiring -->
+        <div class="card">
+          <div class="card-header">
+            <h3>A Expirar em Breve</h3>
+            <mat-icon class="header-icon warn">schedule</mat-icon>
+          </div>
+          <div class="card-body">
+            @for (c of expiringContracts(); track c.id) {
+              <a class="expiry-row" [routerLink]="'/manager/contracts/' + c.id">
+                <div class="expiry-indicator" [class.urgent]="daysLeft(c.endDate) <= 7" [class.warning]="daysLeft(c.endDate) > 7"></div>
+                <div class="expiry-info">
+                  <span class="expiry-title">{{ c.title }}</span>
+                  <span class="expiry-meta">Expira {{ c.endDate | relativeDate }}</span>
                 </div>
-                <span class="expiring-value">{{ contract.value | currencyPt }}</span>
-              </div>
+                <span class="expiry-value">{{ c.value | currencyPt }}</span>
+                <mat-icon class="expiry-arrow">chevron_right</mat-icon>
+              </a>
             }
             @if (expiringContracts().length === 0) {
-              <p class="no-items">Nenhum contrato a expirar nos próximos 30 dias.</p>
+              <div class="empty-state"><mat-icon>check_circle</mat-icon><span>Nenhum contrato a expirar nos próximos 30 dias</span></div>
             }
-          </mat-card-content>
-        </mat-card>
+          </div>
+        </div>
       </div>
 
-      <!-- Recent Activity -->
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Atividade Recente</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @for (activity of kpis().recentActivity; track activity.id) {
-            <div class="activity-item">
-              <mat-icon class="activity-icon">{{ activity.icon }}</mat-icon>
-              <div class="activity-info">
-                <span><strong>{{ activity.user }}</strong> {{ activity.action }} <a [routerLink]="'/manager/contracts/' + activity.contractId">"{{ activity.contractTitle }}"</a></span>
+      <!-- Activity Feed -->
+      <div class="card animate-in animate-delay-8">
+        <div class="card-header">
+          <h3>Atividade Recente</h3>
+        </div>
+        <div class="card-body">
+          @for (a of kpis().recentActivity; track a.id) {
+            <div class="activity-row">
+              <div class="activity-dot" [class]="getActivityColor(a.action)"></div>
+              <div class="activity-content">
+                <strong>{{ a.user }}</strong> {{ a.action }}
+                <a [routerLink]="'/manager/contracts/' + a.contractId">"{{ a.contractTitle }}"</a>
               </div>
-              <span class="activity-time">{{ activity.timestamp | relativeDate }}</span>
+              <span class="activity-time">{{ a.timestamp | relativeDate }}</span>
             </div>
           }
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
-    .dashboard { max-width: 1200px; }
-    h2 { margin: 0 0 24px; font-weight: 400; color: #333; }
+    .dashboard { max-width: 1200px; margin: 0 auto; }
 
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+    .page-header {
+      display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px;
     }
+    h1 { margin: 0; font-size: 28px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; }
+    .page-subtitle { margin: 4px 0 0; font-size: 15px; color: var(--text-tertiary); }
 
+    /* KPI Grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .kpi-card {
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      background: var(--surface-card); border-radius: var(--radius-lg); padding: 20px 22px;
+      border: 1px solid var(--border-subtle); position: relative; overflow: hidden;
+      transition: all var(--transition-normal);
+    }
+    .kpi-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .kpi-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .kpi-icon-wrap {
+      width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    }
+    .kpi-icon-wrap mat-icon { font-size: 20px; width: 20px; height: 20px; color: white; }
+    .kpi-trend {
+      display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .kpi-trend mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    .kpi-trend.up { background: #ecfdf5; color: #059669; }
+    .kpi-trend.down { background: #fef2f2; color: #dc2626; }
+    .kpi-value { font-size: 30px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1; }
+    .kpi-label { font-size: 13px; color: var(--text-tertiary); margin-top: 6px; font-weight: 500; }
+    .kpi-sparkline {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px; opacity: 0.6;
     }
 
-    .kpi-icon {
-      width: 48px; height: 48px;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
+    /* Cards */
+    .card {
+      background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle);
+      overflow: hidden; transition: box-shadow var(--transition-normal);
     }
-
-    .kpi-icon mat-icon { font-size: 24px; }
-
-    .kpi-info { display: flex; flex-direction: column; }
-    .kpi-value { font-size: 24px; font-weight: 600; color: #333; }
-    .kpi-label { font-size: 13px; color: #888; margin-top: 2px; }
-    .kpi-trend { font-size: 12px; margin-top: 4px; }
-    .kpi-trend.positive { color: #4CAF50; }
-    .kpi-trend.negative { color: #F44336; }
-
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px; border-bottom: 1px solid var(--border-subtle);
     }
-
-    .chart-card { padding: 8px; }
-    .chart-card mat-card-content { padding: 0 16px 16px; }
-
-    .bar-item {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 10px;
+    .card-header h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary); }
+    .card-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+      background: #f1f5f9; color: #475569;
     }
-    .bar-label { width: 140px; font-size: 13px; color: #555; }
-    .bar-track { flex: 1; height: 20px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 10px; transition: width 0.3s ease; }
-    .bar-count { width: 30px; text-align: right; font-size: 13px; font-weight: 500; }
+    .card-body { padding: 18px 22px; }
+    .header-icon.warn { color: #f59e0b; }
 
-    .trend-chart {
-      display: flex; justify-content: space-around; align-items: flex-end;
-      height: 120px; padding: 16px 0;
-    }
-    .trend-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .trend-bars { display: flex; align-items: flex-end; gap: 4px; }
-    .trend-bar { width: 20px; border-radius: 4px 4px 0 0; min-height: 4px; }
-    .trend-bar.created { background: #3949ab; }
-    .trend-bar.signed { background: #66bb6a; }
-    .trend-label { font-size: 11px; color: #888; }
-    .trend-legend { display: flex; gap: 16px; justify-content: center; padding-top: 8px; }
-    .legend-item { font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-    .dot.created { background: #3949ab; }
-    .dot.signed { background: #66bb6a; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 
-    .expiring-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-      cursor: pointer;
+    /* Horizontal bars */
+    .h-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .h-bar-row:last-child { margin-bottom: 0; }
+    .h-bar-label { width: 130px; font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .h-bar-track { flex: 1; height: 24px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+    .h-bar-fill {
+      height: 100%; border-radius: 6px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .expiring-item:hover { background: #fafafa; }
-    .expiring-item mat-icon { color: #FF9800; }
-    .expiring-item mat-icon.urgent { color: #F44336; }
-    .expiring-info { flex: 1; display: flex; flex-direction: column; }
-    .expiring-title { font-size: 14px; font-weight: 500; }
-    .expiring-date { font-size: 12px; color: #888; }
-    .expiring-value { font-size: 13px; font-weight: 500; color: #333; }
+    .type-fill { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+    .h-bar-value { width: 32px; text-align: right; font-size: 14px; font-weight: 700; color: var(--text-primary); }
 
-    .activity-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid #f5f5f5;
+    /* Chart */
+    .chart-area { display: flex; justify-content: space-around; align-items: flex-end; height: 130px; padding-top: 12px; }
+    .chart-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .bars-wrap { display: flex; align-items: flex-end; gap: 4px; }
+    .bar {
+      width: 22px; border-radius: 5px 5px 0 0; min-height: 4px; position: relative;
+      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .activity-icon { color: #666; font-size: 20px; }
-    .activity-info { flex: 1; font-size: 14px; }
-    .activity-info a { color: #1a237e; text-decoration: none; }
-    .activity-info a:hover { text-decoration: underline; }
-    .activity-time { font-size: 12px; color: #999; white-space: nowrap; }
-    .no-items { color: #999; font-size: 14px; text-align: center; padding: 24px; }
+    .bar:hover .bar-tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+    .bar-tooltip {
+      position: absolute; top: -24px; left: 50%; transform: translateX(-50%) translateY(0);
+      font-size: 11px; font-weight: 700; color: var(--text-primary);
+      background: white; padding: 2px 6px; border-radius: 4px; box-shadow: var(--shadow-md);
+      opacity: 0; transition: all 200ms ease; pointer-events: none;
+    }
+    .bar-created { background: linear-gradient(180deg, #818cf8, #6366f1); }
+    .bar-signed { background: linear-gradient(180deg, #34d399, #10b981); }
+    .chart-label { font-size: 11px; color: var(--text-tertiary); font-weight: 500; }
+    .legend { display: flex; gap: 12px; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 3px; }
+    .legend-dot.created { background: #6366f1; }
+    .legend-dot.signed { background: #10b981; }
+
+    /* Expiring */
+    .expiry-row {
+      display: flex; align-items: center; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid var(--border-subtle); cursor: pointer; text-decoration: none; color: inherit;
+      transition: all var(--transition-fast);
+    }
+    .expiry-row:last-child { border-bottom: none; }
+    .expiry-row:hover { padding-left: 4px; }
+    .expiry-row:hover .expiry-arrow { opacity: 1; transform: translateX(0); }
+    .expiry-indicator {
+      width: 4px; height: 36px; border-radius: 2px; flex-shrink: 0;
+    }
+    .expiry-indicator.urgent { background: linear-gradient(180deg, #ef4444, #dc2626); }
+    .expiry-indicator.warning { background: linear-gradient(180deg, #f59e0b, #d97706); }
+    .expiry-info { flex: 1; display: flex; flex-direction: column; }
+    .expiry-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .expiry-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+    .expiry-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .expiry-arrow { color: var(--text-tertiary); opacity: 0; transform: translateX(-4px); transition: all 200ms ease; }
+    .empty-state { display: flex; align-items: center; gap: 8px; padding: 24px 0; color: var(--text-tertiary); font-size: 14px; }
+    .empty-state mat-icon { color: #10b981; }
+
+    /* Activity */
+    .activity-row {
+      display: flex; align-items: center; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .activity-dot.green { background: #10b981; }
+    .activity-dot.blue { background: #3b82f6; }
+    .activity-dot.red { background: #ef4444; }
+    .activity-dot.purple { background: #8b5cf6; }
+    .activity-content { flex: 1; font-size: 14px; color: var(--text-secondary); }
+    .activity-content strong { color: var(--text-primary); }
+    .activity-content a { color: var(--brand-primary); text-decoration: none; font-weight: 500; }
+    .activity-content a:hover { text-decoration: underline; }
+    .activity-time { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; }
   `]
 })
 export class ManagerDashboardComponent {
@@ -249,21 +303,38 @@ export class ManagerDashboardComponent {
     this.expiringContracts = contractService.getExpiringContracts(30);
   }
 
-  maxStatusCount = computed(() => Math.max(...this.kpis().contractsByStatus.map(s => s.count)));
-  maxTypeCount = computed(() => Math.max(...this.kpis().contractsByType.map(t => t.count)));
+  maxStatus = computed(() => Math.max(...this.kpis().contractsByStatus.map(s => s.count)));
+  maxType = computed(() => Math.max(...this.kpis().contractsByType.map(t => t.count)));
 
   kpiCards = computed(() => [
-    { label: 'Contratos Ativos', value: this.kpis().activeContracts, icon: 'folder_open', color: '#4CAF50', trend: 3, trendSuffix: ' este mês' },
-    { label: 'Pendentes Aprovação', value: this.kpis().pendingApproval, icon: 'pending_actions', color: '#FF9800', trend: -2, trendSuffix: ' vs semana ant.' },
-    { label: 'Expiram em 30 dias', value: this.kpis().expiringIn30Days, icon: 'schedule', color: '#F44336', trend: null, trendSuffix: '' },
-    { label: 'Valor Total', value: this.kpis().totalValue / 1000, prefix: '€', suffix: 'k', icon: 'payments', color: '#2196F3', trend: 180, trendSuffix: 'k este mês' }
+    { label: 'Contratos Ativos', value: this.kpis().activeContracts, icon: 'folder_open', gradient: 'linear-gradient(135deg, #10b981, #059669)', trend: 3, trendSuffix: ' mês', prefix: null, suffix: null, sparkBg: 'linear-gradient(90deg, transparent, #10b981)' },
+    { label: 'Pendentes Aprovação', value: this.kpis().pendingApproval, icon: 'pending_actions', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)', trend: -2, trendSuffix: ' sem.', prefix: null, suffix: null, sparkBg: 'linear-gradient(90deg, transparent, #f59e0b)' },
+    { label: 'Expiram em 30 dias', value: this.kpis().expiringIn30Days, icon: 'schedule', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)', trend: null, trendSuffix: '', prefix: null, suffix: null, sparkBg: 'linear-gradient(90deg, transparent, #ef4444)' },
+    { label: 'Valor Total', value: this.kpis().totalValue / 1000, icon: 'payments', gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)', trend: 180, trendSuffix: 'k', prefix: '€', suffix: 'k', sparkBg: 'linear-gradient(90deg, transparent, #6366f1)' }
   ]);
 
-  getStatusLabel(status: any) { return (CONTRACT_STATUS_LABELS as any)[status] ?? status; }
-  getStatusColor(status: any) {
-    const colors: any = { active: '#4CAF50', pending_approval: '#FF9800', pending_signature: '#FF9800', draft: '#9E9E9E', signed: '#4CAF50', expired: '#F44336', rejected: '#F44336' };
-    return colors[status] ?? '#9E9E9E';
+  getStatusLabel(s: any) { return (CONTRACT_STATUS_LABELS as any)[s] ?? s; }
+  getTypeLabel(t: any) { return (CONTRACT_TYPE_LABELS as any)[t] ?? t; }
+  daysLeft(d: Date) { return Math.round((new Date(d).getTime() - Date.now()) / 86400000); }
+
+  getBarGradient(status: string): string {
+    const map: Record<string, string> = {
+      active: 'linear-gradient(90deg, #10b981, #34d399)',
+      pending_approval: 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+      pending_signature: 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+      draft: 'linear-gradient(90deg, #94a3b8, #cbd5e1)',
+      signed: 'linear-gradient(90deg, #10b981, #34d399)',
+      expired: 'linear-gradient(90deg, #ef4444, #f87171)',
+      rejected: 'linear-gradient(90deg, #ef4444, #f87171)'
+    };
+    return map[status] ?? 'linear-gradient(90deg, #94a3b8, #cbd5e1)';
   }
-  getTypeLabel(type: any) { return (CONTRACT_TYPE_LABELS as any)[type] ?? type; }
-  daysUntilExpiry(date: Date) { return Math.round((new Date(date).getTime() - Date.now()) / 86400000); }
+
+  getActivityColor(action: string): string {
+    if (action.includes('cri')) return 'blue';
+    if (action.includes('aprov')) return 'green';
+    if (action.includes('assinou')) return 'purple';
+    if (action.includes('rejeit')) return 'red';
+    return 'blue';
+  }
 }

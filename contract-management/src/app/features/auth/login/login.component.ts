@@ -14,203 +14,192 @@ import { Role } from '../../../core/models/user.model';
   selector: 'app-login',
   imports: [FormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatDividerModule],
   template: `
-    <div class="login-container">
-      <mat-card class="login-card">
-        <mat-card-header>
-          <div class="logo-section">
-            <mat-icon class="logo-icon">description</mat-icon>
-            <h1>Gestão de Contratos</h1>
-          </div>
-        </mat-card-header>
+    <div class="login-page">
+      <!-- Animated background -->
+      <div class="bg-effects">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+      </div>
 
-        <mat-card-content>
+      <div class="login-card">
+        <div class="card-inner">
+          <!-- Logo -->
+          <div class="logo-section">
+            <div class="logo-icon">
+              <mat-icon>hub</mat-icon>
+            </div>
+            <h1>ContractHub</h1>
+            <p class="subtitle">Sistema de Gestão de Contratos</p>
+          </div>
+
           @if (error()) {
-            <div class="error-message">
-              <mat-icon>error</mat-icon>
-              {{ error() }}
+            <div class="error-banner">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ error() }}</span>
             </div>
           }
 
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="field">
             <mat-label>Email</mat-label>
-            <input matInput type="email" [(ngModel)]="email" placeholder="seu.email@empresa.pt">
-            <mat-icon matPrefix>email</mat-icon>
+            <input matInput type="email" [(ngModel)]="email" placeholder="seu.email&#64;empresa.pt">
+            <mat-icon matPrefix>mail_outline</mat-icon>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="field">
             <mat-label>Password</mat-label>
             <input matInput [type]="hidePassword() ? 'password' : 'text'" [(ngModel)]="password">
-            <mat-icon matPrefix>lock</mat-icon>
+            <mat-icon matPrefix>lock_outline</mat-icon>
             <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())">
               <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
           </mat-form-field>
 
-          <button mat-raised-button color="primary" class="full-width login-btn" (click)="onLogin()">
-            ENTRAR
+          <button mat-raised-button color="primary" class="login-btn" (click)="onLogin()">
+            Entrar
           </button>
 
-          <mat-divider class="divider" />
+          <div class="demo-divider">
+            <span>acesso rápido</span>
+          </div>
 
-          <p class="demo-label">Acesso rápido (demo)</p>
           <div class="demo-buttons">
-            <button mat-stroked-button (click)="loginAs('creator')">
-              <mat-icon>edit_note</mat-icon>
-              Criador
+            <button class="demo-btn" (click)="loginAs('creator')">
+              <div class="demo-icon creator"><mat-icon>edit_note</mat-icon></div>
+              <span class="demo-label">Criador</span>
+              <span class="demo-desc">Cria contratos</span>
             </button>
-            <button mat-stroked-button (click)="loginAs('manager')">
-              <mat-icon>dashboard</mat-icon>
-              Gestor
+            <button class="demo-btn" (click)="loginAs('manager')">
+              <div class="demo-icon manager"><mat-icon>analytics</mat-icon></div>
+              <span class="demo-label">Gestor</span>
+              <span class="demo-desc">Gere e aprova</span>
             </button>
-            <button mat-stroked-button (click)="loginAs('signer')">
-              <mat-icon>draw</mat-icon>
-              Signatário
+            <button class="demo-btn" (click)="loginAs('signer')">
+              <div class="demo-icon signer"><mat-icon>draw</mat-icon></div>
+              <span class="demo-label">Signatário</span>
+              <span class="demo-desc">Assina documentos</span>
             </button>
           </div>
-        </mat-card-content>
 
-        <mat-card-footer>
-          <p class="powered-by">powered by <strong>edoclink</strong></p>
-        </mat-card-footer>
-      </mat-card>
+          <p class="footer-text">powered by <strong>edoclink</strong></p>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
-    .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+    .login-page {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: #0f172a; position: relative; overflow: hidden;
+    }
+
+    .bg-effects { position: absolute; inset: 0; pointer-events: none; }
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5;
+      animation: float 20s ease-in-out infinite;
+    }
+    .orb-1 { width: 500px; height: 500px; background: #6366f1; top: -10%; left: -5%; animation-delay: 0s; }
+    .orb-2 { width: 400px; height: 400px; background: #8b5cf6; bottom: -10%; right: -5%; animation-delay: -7s; }
+    .orb-3 { width: 300px; height: 300px; background: #06b6d4; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -14s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(10px, -10px) scale(1.02); }
+    }
+
+    .grid-overlay {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
     }
 
     .login-card {
-      width: 100%;
-      max-width: 420px;
-      padding: 32px;
-      border-radius: 16px;
+      position: relative; width: 100%; max-width: 440px;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3), 0 0 100px rgba(99,102,241,0.1);
+      animation: fadeInUp 0.6s ease-out;
     }
 
-    mat-card-header {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
+    .card-inner { padding: 40px 36px; }
 
-    .logo-section {
-      text-align: center;
-      width: 100%;
-    }
-
+    .logo-section { text-align: center; margin-bottom: 32px; }
     .logo-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      color: #1a237e;
+      width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 16px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(99,102,241,0.35);
     }
+    .logo-icon mat-icon { font-size: 28px; width: 28px; height: 28px; color: white; }
+    h1 { margin: 0; font-size: 26px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em; }
+    .subtitle { margin: 4px 0 0; font-size: 14px; color: #64748b; }
 
-    .logo-section h1 {
-      margin: 8px 0 0;
-      font-size: 24px;
-      font-weight: 500;
-      color: #1a237e;
-    }
+    .field { width: 100%; }
 
-    .full-width {
-      width: 100%;
+    .error-banner {
+      display: flex; align-items: center; gap: 8px; padding: 12px 16px; margin-bottom: 16px;
+      background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; color: #dc2626; font-size: 13px;
     }
 
     .login-btn {
-      height: 48px;
-      font-size: 16px;
-      margin-top: 8px;
+      width: 100%; height: 48px; font-size: 15px !important; font-weight: 600 !important;
+      border-radius: 12px !important; margin-top: 4px;
     }
 
-    .error-message {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px;
-      margin-bottom: 16px;
-      background: #ffebee;
-      color: #c62828;
-      border-radius: 8px;
-      font-size: 14px;
+    .demo-divider {
+      display: flex; align-items: center; gap: 16px; margin: 28px 0 20px;
     }
+    .demo-divider::before, .demo-divider::after {
+      content: ''; flex: 1; height: 1px; background: #e2e8f0;
+    }
+    .demo-divider span { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
 
-    .divider {
-      margin: 24px 0;
+    .demo-buttons { display: flex; gap: 10px; }
+    .demo-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 16px 8px; border: 1px solid #e2e8f0; border-radius: 14px;
+      background: #f8fafc; cursor: pointer; transition: all 200ms ease;
     }
+    .demo-btn:hover { border-color: #6366f1; background: #f5f3ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,0.15); }
 
-    .demo-label {
-      text-align: center;
-      color: #666;
-      font-size: 13px;
-      margin-bottom: 12px;
+    .demo-icon {
+      width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
     }
+    .demo-icon mat-icon { font-size: 20px; width: 20px; height: 20px; color: white; }
+    .demo-icon.creator { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+    .demo-icon.manager { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+    .demo-icon.signer { background: linear-gradient(135deg, #06b6d4, #0ea5e9); }
 
-    .demo-buttons {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-    }
+    .demo-label { font-size: 13px; font-weight: 600; color: #1e293b; }
+    .demo-desc { font-size: 10px; color: #94a3b8; }
 
-    .demo-buttons button {
-      flex: 1;
-      font-size: 12px;
-    }
+    .footer-text { text-align: center; margin: 24px 0 0; font-size: 12px; color: #94a3b8; }
+    .footer-text strong { color: #6366f1; }
 
-    .demo-buttons mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      margin-right: 4px;
-    }
-
-    mat-card-footer {
-      padding: 16px 0 0;
-    }
-
-    .powered-by {
-      text-align: center;
-      color: #999;
-      font-size: 12px;
-      margin: 0;
-    }
-
-    .powered-by strong {
-      color: #1a237e;
-    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   `]
 })
 export class LoginComponent {
-  email = '';
-  password = '';
-  error = signal('');
-  hidePassword = signal(true);
+  email = ''; password = '';
+  error = signal(''); hidePassword = signal(true);
 
   constructor(private authService: AuthService, private router: Router) {
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate([this.authService.getRedirectRoute()]);
-    }
+    if (this.authService.isAuthenticated()) { this.router.navigate([this.authService.getRedirectRoute()]); }
   }
 
-  onLogin(): void {
-    if (!this.email || !this.password) {
-      this.error.set('Preencha o email e a password.');
-      return;
-    }
-    const success = this.authService.login(this.email, this.password);
-    if (success) {
+  onLogin() {
+    if (!this.email || !this.password) { this.error.set('Preencha o email e a password.'); return; }
+    if (this.authService.login(this.email, this.password)) {
       this.router.navigate([this.authService.getRedirectRoute()]);
-    } else {
-      this.error.set('Credenciais inválidas. Utilize os botões de acesso rápido para demo.');
-    }
+    } else { this.error.set('Credenciais inválidas. Use os botões de acesso rápido.'); }
   }
 
-  loginAs(role: string): void {
-    const roleEnum = role === 'creator' ? Role.CREATOR : role === 'manager' ? Role.MANAGER : Role.SIGNER;
-    this.authService.loginAs(roleEnum);
+  loginAs(role: string) {
+    const r = role === 'creator' ? Role.CREATOR : role === 'manager' ? Role.MANAGER : Role.SIGNER;
+    this.authService.loginAs(r);
     this.router.navigate([this.authService.getRedirectRoute()]);
   }
 }
