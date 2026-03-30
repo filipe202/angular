@@ -1,4 +1,3 @@
-import { ContractStatus, ContractType } from './contract.model';
 
 export interface KpiCard {
   label: string;
@@ -12,12 +11,12 @@ export interface KpiCard {
 }
 
 export interface StatusCount {
-  status: ContractStatus;
+  status: string;
   count: number;
 }
 
 export interface TypeCount {
-  type: ContractType;
+  type: string;
   count: number;
 }
 

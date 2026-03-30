@@ -15,7 +15,13 @@ import { ContractStatus, CONTRACT_STATUS_LABELS } from '../../../core/models/con
 })
 export class StatusBadgeComponent {
   status = input.required<ContractStatus>();
-  label = computed(() => CONTRACT_STATUS_LABELS[this.status()] ?? this.status());
+  private static EN: Record<string, string> = {
+    draft: 'Draft', pending_approval: 'Pending Approval', in_review: 'In Review',
+    approved: 'Approved', pending_signature: 'Pending Signature',
+    partially_signed: 'Partially Signed', signed: 'Signed', active: 'Active',
+    expired: 'Expired', cancelled: 'Cancelled', renewed: 'Renewed', rejected: 'Rejected',
+  };
+  label = computed(() => StatusBadgeComponent.EN[this.status()] ?? CONTRACT_STATUS_LABELS[this.status()] ?? this.status());
 
   private colorMap: Record<string, { bg: string; fg: string }> = {
     [ContractStatus.DRAFT]: { bg: 'rgba(122,139,165,0.1)', fg: '#7a8ba5' },

@@ -5,12 +5,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Role } from '../../../core/models/user.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
+  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   template: `
     <div class="login-page">
       <!-- Left panel: branded -->
@@ -38,28 +39,28 @@ import { Role } from '../../../core/models/user.model';
             </svg>
           </div>
           <h1 class="brand-title">ContractHub</h1>
-          <p class="brand-tagline">Plataforma de Gestão de Contratos</p>
+          <p class="brand-tagline">Contract Management Platform</p>
 
           <div class="brand-features">
             <div class="feature">
               <div class="feature-icon"><mat-icon>verified</mat-icon></div>
               <div>
-                <span class="feature-title">Workflows de Aprovação</span>
-                <span class="feature-desc">Aprovação multi-nível configurável</span>
+                <span class="feature-title">Approval Workflows</span>
+                <span class="feature-desc">Configurable multi-level approval</span>
               </div>
             </div>
             <div class="feature">
               <div class="feature-icon"><mat-icon>draw</mat-icon></div>
               <div>
-                <span class="feature-title">Assinatura Digital</span>
-                <span class="feature-desc">Assinatura qualificada integrada</span>
+                <span class="feature-title">Digital Signature</span>
+                <span class="feature-desc">Integrated qualified e-signature</span>
               </div>
             </div>
             <div class="feature">
               <div class="feature-icon"><mat-icon>monitoring</mat-icon></div>
               <div>
                 <span class="feature-title">Dashboards & KPIs</span>
-                <span class="feature-desc">Visão completa do ciclo contratual</span>
+                <span class="feature-desc">Full contract lifecycle visibility</span>
               </div>
             </div>
           </div>
@@ -75,8 +76,8 @@ import { Role } from '../../../core/models/user.model';
       <div class="form-panel">
         <div class="form-content">
           <div class="form-header">
-            <h2>Bem-vindo</h2>
-            <p>Inicie sessão para continuar</p>
+            <h2>Welcome back</h2>
+            <p>Sign in to continue</p>
           </div>
 
           @if (error()) {
@@ -86,58 +87,50 @@ import { Role } from '../../../core/models/user.model';
             </div>
           }
 
-          <mat-form-field appearance="outline" class="field">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" [(ngModel)]="email" placeholder="seu.email&#64;empresa.pt">
-            <mat-icon matPrefix>mail_outline</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="field">
-            <mat-label>Password</mat-label>
-            <input matInput [type]="hidePassword() ? 'password' : 'text'" [(ngModel)]="password">
-            <mat-icon matPrefix>lock_outline</mat-icon>
-            <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())">
-              <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          @if (keycloakEnabled) {
+            <!-- Keycloak SSO mode -->
+            <button mat-raised-button color="primary" class="login-btn sso-btn"
+                    (click)="onKeycloakLogin()" [disabled]="redirecting()">
+              @if (redirecting()) {
+                <mat-spinner diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner>
+                Redirecting...
+              } @else {
+                <ng-container>
+                  <mat-icon style="margin-right:8px;vertical-align:middle">login</mat-icon>
+                  Sign in with Keycloak
+                </ng-container>
+              }
             </button>
-          </mat-form-field>
 
-          <button mat-raised-button color="primary" class="login-btn" (click)="onLogin()">
-            Entrar
+            <div class="divider"><span>demo access</span></div>
+          } @else {
+            <!-- Demo: email/password form -->
+            <mat-form-field appearance="outline" class="field">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" [(ngModel)]="email" placeholder="your.email&#64;company.com">
+              <mat-icon matPrefix>mail_outline</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field">
+              <mat-label>Password</mat-label>
+              <input matInput [type]="hidePassword() ? 'password' : 'text'" [(ngModel)]="password">
+              <mat-icon matPrefix>lock_outline</mat-icon>
+              <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())">
+                <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" class="login-btn" (click)="onLogin()">
+              Sign in
+            </button>
+
+            <div class="divider"><span>demo access</span></div>
+          }
+
+          <button class="demo-btn" (click)="loginDemo()">
+            <mat-icon>person_outline</mat-icon>
+            Continue as demo
           </button>
-
-          <div class="divider"><span>acesso demo</span></div>
-
-          <div class="role-cards">
-            <button class="role-card" (click)="loginAs('creator')">
-              <div class="role-icon creator">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15h6"/>
-                </svg>
-              </div>
-              <span class="role-name">Criador</span>
-              <span class="role-desc">Cria e submete contratos</span>
-            </button>
-            <button class="role-card" (click)="loginAs('manager')">
-              <div class="role-icon manager">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                  <path d="M9 5H2v7l6.29 6.29a1 1 0 001.42 0l5.58-5.58a1 1 0 000-1.42L9 5z"/><circle cx="6" cy="9" r="1" fill="currentColor"/>
-                  <path d="M15 4l6.29 6.29a1 1 0 010 1.42L16 17"/>
-                </svg>
-              </div>
-              <span class="role-name">Gestor</span>
-              <span class="role-desc">Revê, aprova e gere</span>
-            </button>
-            <button class="role-card" (click)="loginAs('signer')">
-              <div class="role-icon signer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/>
-                  <path d="M9 12l2 2 4-4"/>
-                </svg>
-              </div>
-              <span class="role-name">Signatário</span>
-              <span class="role-desc">Visualiza e assina</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -267,22 +260,35 @@ import { Role } from '../../../core/models/user.model';
 })
 export class LoginComponent {
   email = ''; password = '';
-  error = signal(''); hidePassword = signal(true);
+  error = signal('');
+  hidePassword = signal(true);
+  redirecting = signal(false);
+
+  readonly keycloakEnabled = environment.keycloak.enabled;
 
   constructor(private authService: AuthService, private router: Router) {
-    if (this.authService.isAuthenticated()) { this.router.navigate([this.authService.getRedirectRoute()]); }
+    // If already authenticated (demo mode quick-login or session restore), go to dashboard
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate([this.authService.getRedirectRoute()]);
+    }
+    // With Keycloak login-required, we should never reach here unauthenticated —
+    // provideKeycloak's own initializer redirects to Keycloak before Angular boots.
+  }
+
+  async onKeycloakLogin() {
+    this.redirecting.set(true);
+    // With login-required, reloading the page triggers Keycloak redirect
+    window.location.href = window.location.origin;
   }
 
   onLogin() {
-    if (!this.email || !this.password) { this.error.set('Preencha o email e a password.'); return; }
-    if (this.authService.login(this.email, this.password)) {
-      this.router.navigate([this.authService.getRedirectRoute()]);
-    } else { this.error.set('Credenciais inválidas. Use os botões de acesso rápido.'); }
+    if (!this.email) { this.error.set('Please enter your email.'); return; }
+    this.authService.loginDemo(this.email);
+    this.router.navigate([this.authService.getRedirectRoute()]);
   }
 
-  loginAs(role: string) {
-    const r = role === 'creator' ? Role.CREATOR : role === 'manager' ? Role.MANAGER : Role.SIGNER;
-    this.authService.loginAs(r);
+  loginDemo() {
+    this.authService.loginDemo('Demo User');
     this.router.navigate([this.authService.getRedirectRoute()]);
   }
 }

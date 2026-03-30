@@ -1,55 +1,69 @@
-import { APP_INITIALIZER, ApplicationConfig, provideBrowserGlobalErrorListeners, LOCALE_ID } from '@angular/core';
+import { ApplicationConfig, provideAppInitializer, inject, LOCALE_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient } from '@angular/common/http';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
-import { KeycloakService } from 'keycloak-angular';
+import {
+  provideKeycloak,
+  includeBearerTokenInterceptor,
+  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+  withAutoRefreshToken,
+  AutoRefreshTokenService,
+  UserActivityService,
+  type IncludeBearerTokenCondition,
+} from 'keycloak-angular';
 import { AuthService } from './core/auth/auth.service';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
 registerLocaleData(localePt);
 
-function initializeKeycloak(keycloak: KeycloakService, authService: AuthService) {
-  return async () => {
-    if (environment.keycloak.enabled) {
-      try {
-        await keycloak.init({
-          config: {
-            url: environment.keycloak.url,
-            realm: environment.keycloak.realm,
-            clientId: environment.keycloak.clientId
-          },
-          initOptions: {
-            onLoad: 'check-sso',
-            silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
-            checkLoginIframe: false
-          },
-          enableBearerInterceptor: true,
-          bearerPrefix: 'Bearer'
-        });
-      } catch (e) {
-        console.warn('Keycloak initialization failed, falling back to demo mode:', e);
-      }
-    }
-    await authService.initFromKeycloak();
-  };
-}
+// Only attach bearer token to requests going to the edoclink API
+const edoclinkCondition: IncludeBearerTokenCondition = {
+  urlPattern: new RegExp(
+    `^${environment.edoclink.apiUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+    'i'
+  ),
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideAnimationsAsync(),
-    provideHttpClient(),
+    provideAnimations(),
+    provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-PT' },
-    KeycloakService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeKeycloak,
-      multi: true,
-      deps: [KeycloakService, AuthService]
-    }
-  ]
+
+    // Register the Keycloak instance (no initOptions — we call init() ourselves in AuthService.init())
+    ...(environment.keycloak.enabled
+      ? [
+          provideKeycloak({
+            config: {
+              url: environment.keycloak.url,
+              realm: environment.keycloak.realm,
+              clientId: environment.keycloak.clientId,
+            },
+            features: [
+              withAutoRefreshToken({
+                onInactivityTimeout: 'logout',
+                sessionTimeout: 60000,
+              }),
+            ],
+          }),
+          AutoRefreshTokenService,
+          UserActivityService,
+          {
+            provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+            useValue: [edoclinkCondition],
+          },
+        ]
+      : []),
+
+    // Single app initializer: init Keycloak AND populate AuthService user signal in sequence.
+    // By calling kc.init() here (not in provideKeycloak), we guarantee the order is correct.
+    provideAppInitializer(() => {
+      const authService = inject(AuthService);
+      return authService.init();
+    }),
+  ],
 };

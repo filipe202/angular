@@ -14,8 +14,8 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
     <div class="page">
       <div class="page-header animate-in">
         <div>
-          <h1>Histórico de Assinaturas</h1>
-          <p class="subtitle">Registo de todas as suas ações de assinatura</p>
+          <h1>Signature History</h1>
+          <p class="subtitle">Record of all your signature actions</p>
         </div>
       </div>
 
@@ -23,32 +23,32 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
         <div class="table-wrap animate-in animate-delay-1">
           <table mat-table [dataSource]="history()">
             <ng-container matColumnDef="contract">
-              <th mat-header-cell *matHeaderCellDef>Contrato</th>
+              <th mat-header-cell *matHeaderCellDef>Contract</th>
               <td mat-cell *matCellDef="let s">
-                <a [routerLink]="'/signer/contracts/' + s.contractId" class="title-link">{{ s.contractTitle }}</a>
+                <a [routerLink]="'/app/contracts/' + s.contractId" class="title-link">{{ s.contractTitle }}</a>
               </td>
             </ng-container>
             <ng-container matColumnDef="type">
-              <th mat-header-cell *matHeaderCellDef>Tipo</th>
+              <th mat-header-cell *matHeaderCellDef>Type</th>
               <td mat-cell *matCellDef="let s">
                 <span class="type-tag">{{ s.contractType }}</span>
               </td>
             </ng-container>
             <ng-container matColumnDef="value">
-              <th mat-header-cell *matHeaderCellDef>Valor</th>
+              <th mat-header-cell *matHeaderCellDef>Value</th>
               <td mat-cell *matCellDef="let s">{{ s.contractValue | currencyPt }}</td>
             </ng-container>
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <th mat-header-cell *matHeaderCellDef>Status</th>
               <td mat-cell *matCellDef="let s">
                 <span class="status-chip" [class]="s.status">
                   <mat-icon>{{ s.status === 'signed' ? 'verified' : 'cancel' }}</mat-icon>
-                  {{ s.status === 'signed' ? 'Assinado' : 'Recusado' }}
+                  {{ s.status === 'signed' ? 'Signed' : 'Declined' }}
                 </span>
               </td>
             </ng-container>
             <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Data</th>
+              <th mat-header-cell *matHeaderCellDef>Date</th>
               <td mat-cell *matCellDef="let s">{{ (s.signedAt || s.declinedAt) | date:'dd/MM/yyyy HH:mm' }}</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
@@ -58,8 +58,8 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
       } @else {
         <div class="empty animate-in">
           <div class="empty-icon"><mat-icon>history</mat-icon></div>
-          <h2>Sem histórico</h2>
-          <p>Ainda não assinou nenhum contrato.</p>
+          <h2>No history yet</h2>
+          <p>You haven't signed any contracts yet.</p>
         </div>
       }
     </div>
@@ -109,7 +109,11 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
   `]
 })
 export class SignatureHistoryComponent {
-  constructor(private authService: AuthService, private signatureService: SignatureService) {}
+  constructor(private authService: AuthService, private signatureService: SignatureService) {
+    if (this.signatureService.allSignatures().length === 0) {
+      this.signatureService.loadForCurrentUser();
+    }
+  }
 
   columns = ['contract', 'type', 'value', 'status', 'date'];
   private userId = computed(() => this.authService.user()?.id ?? '');

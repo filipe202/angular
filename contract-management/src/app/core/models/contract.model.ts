@@ -64,8 +64,14 @@ export interface Contract {
   currentWorkflowStep?: string;
   tags?: string[];
   department?: string;
-  edoclinkRef?: string;
+  edoclinkRef?: string;   // flow/doc UUID
+  edoclinkCode?: string;  // flow/doc human code (e.g. "FLX/2024/001")
   rejectionReason?: string;
+  fields?: { Name?: string; Label?: string; Value?: string; FormattedValue?: string; DataType?: string }[];
+  flowTypeName?: string;  // raw name from FlowTypeKey.Name / DocumentTypeKey.Name
+  currentStageName?: string; // name of the current active stage
+  rawStatus?: string;   // raw status string directly from API (e.g. "Pending", "Dispatched")
+  rawType?: string;     // raw contract type code from folder field (e.g. "NDA", "ContractingServices_AcquisitionGoods")
 }
 
 export const CONTRACT_STATUS_LABELS: Record<ContractStatus, string> = {

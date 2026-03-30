@@ -16,14 +16,14 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
   imports: [RouterLink, FormsModule, DatePipe, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule, CurrencyPtPipe],
   template: `
     <div class="sign">
-      <a routerLink="/signer/pending" class="back animate-in">
-        <mat-icon>arrow_back</mat-icon> Voltar
+      <a routerLink="/app/pending" class="back animate-in">
+        <mat-icon>arrow_back</mat-icon> Back
       </a>
 
       @if (signature(); as sig) {
         <div class="sign-header animate-in animate-delay-1">
           <h1>{{ sig.contractTitle }}</h1>
-          <span class="status-tag">Aguarda Assinatura</span>
+          <span class="status-tag">Awaiting Signature</span>
         </div>
 
         <div class="sign-layout animate-in animate-delay-2">
@@ -33,8 +33,8 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
               <div class="preview-icon">
                 <mat-icon>picture_as_pdf</mat-icon>
               </div>
-              <h3>Pré-visualização</h3>
-              <p>O documento será apresentado aqui via integração edoclink.</p>
+              <h3>Document Preview</h3>
+              <p>The document will be shown here via edoclink integration.</p>
               @if (contract(); as c) {
                 <div class="doc-list">
                   @for (doc of c.documents; track doc.id) {
@@ -52,20 +52,20 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
           <div class="side">
             <!-- Details -->
             <div class="side-section">
-              <h3 class="side-title">Detalhes</h3>
-              <div class="detail-row"><span class="d-label">Tipo</span><span class="d-val">{{ sig.contractType }}</span></div>
-              <div class="detail-row"><span class="d-label">Valor</span><span class="d-val">{{ sig.contractValue | currencyPt }}</span></div>
+              <h3 class="side-title">Details</h3>
+              <div class="detail-row"><span class="d-label">Type</span><span class="d-val">{{ sig.contractType }}</span></div>
+              <div class="detail-row"><span class="d-label">Value</span><span class="d-val">{{ sig.contractValue | currencyPt }}</span></div>
               @if (contract(); as c) {
-                <div class="detail-row"><span class="d-label">Início</span><span class="d-val">{{ c.startDate | date:'dd/MM/yyyy' }}</span></div>
-                <div class="detail-row"><span class="d-label">Fim</span><span class="d-val">{{ c.endDate | date:'dd/MM/yyyy' }}</span></div>
-                <div class="detail-row"><span class="d-label">Departamento</span><span class="d-val">{{ c.department }}</span></div>
+                <div class="detail-row"><span class="d-label">Start</span><span class="d-val">{{ c.startDate | date:'dd/MM/yyyy' }}</span></div>
+                <div class="detail-row"><span class="d-label">End</span><span class="d-val">{{ c.endDate | date:'dd/MM/yyyy' }}</span></div>
+                <div class="detail-row"><span class="d-label">Department</span><span class="d-val">{{ c.department }}</span></div>
               }
             </div>
 
             @if (contract(); as c) {
               <!-- Parties -->
               <div class="side-section">
-                <h3 class="side-title">Partes</h3>
+                <h3 class="side-title">Parties</h3>
                 @for (party of c.parties; track party.id) {
                   <div class="party-mini">
                     <div class="party-dot">{{ party.name[0] }}</div>
@@ -76,7 +76,7 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
 
               <!-- Documents -->
               <div class="side-section">
-                <h3 class="side-title">Documentos</h3>
+                <h3 class="side-title">Documents</h3>
                 @for (doc of c.documents; track doc.id) {
                   <div class="doc-mini"><mat-icon>description</mat-icon> {{ doc.name }}</div>
                 }
@@ -87,21 +87,21 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
             <div class="side-actions">
               @if (!showDeclineForm()) {
                 <button mat-raised-button color="primary" class="sign-btn" (click)="onSign()">
-                  <mat-icon>draw</mat-icon> Assinar Contrato
+                  <mat-icon>draw</mat-icon> Sign Contract
                 </button>
                 <button mat-stroked-button class="decline-btn" (click)="showDeclineForm.set(true)">
-                  <mat-icon>close</mat-icon> Recusar
+                  <mat-icon>close</mat-icon> Decline
                 </button>
               } @else {
                 <mat-form-field appearance="outline" class="reason-field">
-                  <mat-label>Motivo da recusa</mat-label>
-                  <textarea matInput [(ngModel)]="declineReason" rows="3" placeholder="Indique o motivo..."></textarea>
+                  <mat-label>Reason for declining</mat-label>
+                  <textarea matInput [(ngModel)]="declineReason" rows="3" placeholder="Explain the reason..."></textarea>
                 </mat-form-field>
                 <div class="decline-btns">
                   <button mat-raised-button class="confirm-decline" [disabled]="!declineReason" (click)="onDecline()">
-                    Confirmar Recusa
+                    Confirm Decline
                   </button>
-                  <button mat-stroked-button (click)="showDeclineForm.set(false)">Cancelar</button>
+                  <button mat-stroked-button (click)="showDeclineForm.set(false)">Cancel</button>
                 </div>
               }
             </div>
@@ -110,8 +110,8 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
       } @else {
         <div class="not-found animate-in">
           <mat-icon>search_off</mat-icon>
-          <h2>Pedido não encontrado</h2>
-          <a mat-stroked-button routerLink="/signer/pending">Voltar</a>
+          <h2>Request not found</h2>
+          <a mat-stroked-button routerLink="/app/pending">Back</a>
         </div>
       }
     </div>
@@ -233,17 +233,20 @@ export class SignContractComponent {
       const sig = this.signature();
       return sig ? this.contractService.getContractById(sig.contractId)() : null;
     });
+    if (this.signatureService.allSignatures().length === 0) {
+      this.signatureService.loadForCurrentUser();
+    }
   }
 
   onSign() {
     this.signatureService.sign(this.signatureId);
     this.snackBar.open('Contrato assinado com sucesso!', 'OK', { duration: 3000 });
-    this.router.navigate(['/signer/pending']);
+    this.router.navigate(['/app/pending']);
   }
 
   onDecline() {
     this.signatureService.decline(this.signatureId, this.declineReason);
     this.snackBar.open('Assinatura recusada', 'OK', { duration: 3000 });
-    this.router.navigate(['/signer/pending']);
+    this.router.navigate(['/app/pending']);
   }
 }

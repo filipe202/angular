@@ -14,10 +14,10 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
     <div class="page">
       <div class="page-header animate-in">
         <div>
-          <h1>Pendentes de Assinatura</h1>
-          <p class="subtitle">Contratos que aguardam a sua assinatura</p>
+          <h1>Pending Signatures</h1>
+          <p class="subtitle">Contracts waiting for your signature</p>
         </div>
-        <span class="count-badge">{{ pendingSignatures().length }} pendentes</span>
+        <span class="count-badge">{{ pendingSignatures().length }} pending</span>
       </div>
 
       <div class="list">
@@ -39,11 +39,11 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
               </div>
             </div>
             <div class="sig-actions">
-              <a mat-stroked-button [routerLink]="'/signer/contracts/' + sig.contractId">
-                <mat-icon>visibility</mat-icon> Ver
+              <a mat-stroked-button [routerLink]="'/app/contracts/' + sig.contractId">
+                <mat-icon>visibility</mat-icon> View
               </a>
-              <a mat-raised-button color="primary" [routerLink]="'/signer/sign/' + sig.id">
-                <mat-icon>draw</mat-icon> Assinar
+              <a mat-raised-button color="primary" [routerLink]="'/app/sign/' + sig.id">
+                <mat-icon>draw</mat-icon> Sign
               </a>
             </div>
           </div>
@@ -53,9 +53,9 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
       @if (pendingSignatures().length === 0) {
         <div class="empty animate-in">
           <div class="empty-icon"><mat-icon>verified</mat-icon></div>
-          <h2>Tudo assinado!</h2>
-          <p>Não tem contratos pendentes de assinatura.</p>
-          <a mat-stroked-button routerLink="/signer/dashboard">Voltar ao Painel</a>
+          <h2>All signed!</h2>
+          <p>No contracts pending your signature.</p>
+          <a mat-stroked-button routerLink="/app/dashboard">Back to Dashboard</a>
         </div>
       }
     </div>
@@ -112,7 +112,9 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
   `]
 })
 export class PendingSignaturesComponent {
-  constructor(private authService: AuthService, private signatureService: SignatureService) {}
+  constructor(private authService: AuthService, private signatureService: SignatureService) {
+    this.signatureService.loadForCurrentUser();
+  }
 
   private userId = computed(() => this.authService.user()?.id ?? '');
   pendingSignatures = computed(() => this.signatureService.getPendingByUser(this.userId())());

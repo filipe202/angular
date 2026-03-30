@@ -2,6 +2,13 @@ import { User } from './user.model';
 
 export type WorkflowStepStatus = 'pending' | 'active' | 'approved' | 'rejected';
 
+export interface WorkflowStepField {
+  name: string;
+  label?: string;
+  value?: string;
+  formattedValue?: string;
+}
+
 export interface WorkflowStep {
   id: string;
   name: string;
@@ -10,6 +17,7 @@ export interface WorkflowStep {
   assignedTo: User;
   comments?: string;
   completedAt?: Date;
+  fields?: WorkflowStepField[];
 }
 
 export interface Workflow {

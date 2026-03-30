@@ -21,14 +21,14 @@ import { ContractStatus, CONTRACT_TYPE_LABELS } from '../../../core/models/contr
           <h1>Os Meus Contratos</h1>
           <p class="subtitle">Acompanhe o estado dos seus contratos</p>
         </div>
-        <a mat-raised-button color="primary" routerLink="/creator/contracts/new" class="new-btn">
+        <a mat-raised-button color="primary" routerLink="/app/contracts/new" class="new-btn">
           <mat-icon>add</mat-icon> Novo Contrato
         </a>
       </div>
 
       <!-- KPIs -->
       <div class="kpi-row animate-in animate-delay-1">
-        <a class="kpi" routerLink="/creator/contracts" [queryParams]="{status: 'draft'}">
+        <a class="kpi" routerLink="/app/contracts" [queryParams]="{status: 'draft'}">
           <div class="kpi-icon draft"><mat-icon>edit_note</mat-icon></div>
           <div class="kpi-num">{{ drafts().length }}</div>
           <div class="kpi-label">Rascunhos</div>
@@ -39,7 +39,7 @@ import { ContractStatus, CONTRACT_TYPE_LABELS } from '../../../core/models/contr
           <div class="kpi-num">{{ inApproval().length }}</div>
           <div class="kpi-label">Em Aprovação</div>
         </div>
-        <a class="kpi" routerLink="/creator/contracts" [queryParams]="{status: 'rejected'}">
+        <a class="kpi" routerLink="/app/contracts" [queryParams]="{status: 'rejected'}">
           <div class="kpi-icon rejected"><mat-icon>reply</mat-icon></div>
           <div class="kpi-num">{{ rejected().length }}</div>
           <div class="kpi-label">Devolvidos</div>
@@ -57,7 +57,7 @@ import { ContractStatus, CONTRACT_TYPE_LABELS } from '../../../core/models/contr
         <h2 class="section-title">Recentes</h2>
 
         @for (contract of myContracts().slice(0, 6); track contract.id; let i = $index) {
-          <a class="contract-row" [routerLink]="'/creator/contracts/' + contract.id"
+          <a class="contract-row" [routerLink]="'/app/contracts/' + contract.id"
              [style.animation-delay]="((i + 4) * 60) + 'ms'">
             <div class="row-left">
               <div class="row-type">{{ getTypeLabel(contract.type) }}</div>
@@ -98,7 +98,7 @@ import { ContractStatus, CONTRACT_TYPE_LABELS } from '../../../core/models/contr
             <div class="empty-icon"><mat-icon>note_add</mat-icon></div>
             <h3>Ainda sem contratos</h3>
             <p>Comece por criar o seu primeiro contrato.</p>
-            <a mat-raised-button color="primary" routerLink="/creator/contracts/new">
+            <a mat-raised-button color="primary" routerLink="/app/contracts/new">
               <mat-icon>add</mat-icon> Criar Contrato
             </a>
           </div>
@@ -201,7 +201,9 @@ export class CreatorDashboardComponent {
     private authService: AuthService,
     private contractService: ContractService,
     private workflowService: WorkflowService
-  ) {}
+  ) {
+    this.contractService.loadAll();
+  }
 
   private userId = computed(() => this.authService.user()?.id ?? '');
   myContracts = computed(() => this.contractService.getContractsByCreator(this.userId())());

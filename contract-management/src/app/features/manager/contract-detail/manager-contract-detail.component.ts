@@ -227,6 +227,9 @@ export class ManagerContractDetailComponent {
     this.contractId = this.route.snapshot.paramMap.get('id') ?? '';
     this.contract = this.contractService.getContractById(this.contractId);
     this.workflow = this.workflowService.getWorkflow(this.contractId);
+    if (this.contractService.allContracts().length === 0) {
+      this.contractService.loadAll();
+    }
   }
 
   canApprove = computed(() => {

@@ -1,69 +1,116 @@
-import { Component } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from '../../../core/auth/auth.service';
+
+const FORM_BASE_URL = 'https://linkformsfrontendv8dev-bbgxagdbc4dqa4he.northeurope-01.azurewebsites.net/lfapp/render?id=2';
 
 @Component({
   selector: 'app-contract-new',
-  imports: [RouterLink, MatCardModule, MatIconModule, MatButtonModule],
+  imports: [RouterLink, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   template: `
-    <div class="new-contract">
-      <a routerLink="/creator/dashboard" class="back-link">
-        <mat-icon>arrow_back</mat-icon> Voltar ao Painel
-      </a>
-
-      <h2>Novo Contrato</h2>
-
-      <mat-card class="iframe-container">
-        <div class="iframe-wrapper">
-          <div class="iframe-placeholder">
-            <mat-icon>description</mat-icon>
-            <h3>Formulário edoclink</h3>
-            <p>
-              O formulário de criação do contrato é gerido pelo edoclink.<br>
-              Todos os campos, validações e lógica de negócio são controlados pela plataforma edoclink.
-            </p>
-            <p class="hint">
-              Ao submeter o formulário, o contrato entra automaticamente no workflow de aprovação.
-            </p>
-            <div class="iframe-mock">
-              <span class="mock-label">IFRAME EDOCLINK</span>
-              <span class="mock-url">edoclink.empresa.pt/contracts/new</span>
-            </div>
-          </div>
+    <div class="new-page">
+      <div class="page-header animate-in">
+        <div class="header-left">
+          <a routerLink="/app/contracts" class="back">
+            <mat-icon>arrow_back</mat-icon> Back to Contracts
+          </a>
+          <h1>New Contract</h1>
+          <p class="subtitle">Fill in the form to start the approval process.</p>
         </div>
-      </mat-card>
+        <button mat-icon-button class="refresh-btn" (click)="reload()" title="Reload form">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+
+      <div class="frame-wrap animate-in animate-delay-1">
+        @if (loading()) {
+          <div class="frame-loading">
+            <mat-spinner diameter="36"></mat-spinner>
+            <span>Loading form...</span>
+          </div>
+        }
+        <iframe
+          [src]="iframeSrc()"
+          class="form-frame"
+          [class.hidden]="loading()"
+          (load)="onLoad()"
+          allow="fullscreen"
+          title="New Contract Form"
+        ></iframe>
+      </div>
     </div>
   `,
   styles: [`
-    .new-contract { max-width: 900px; }
-    .back-link { display: inline-flex; align-items: center; gap: 4px; color: #666; text-decoration: none; margin-bottom: 16px; font-size: 14px; }
-    .back-link:hover { color: #1a237e; }
-    h2 { margin: 0 0 24px; font-weight: 400; }
-
-    .iframe-container { padding: 0; overflow: hidden; }
-    .iframe-wrapper { min-height: 500px; display: flex; }
-
-    .iframe-placeholder {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 48px; text-align: center; color: #666;
-      background: repeating-linear-gradient(45deg, #fafafa, #fafafa 10px, #f5f5f5 10px, #f5f5f5 20px);
+    .new-page {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; flex-direction: column;
+      height: calc(100vh - 96px);
     }
 
-    .iframe-placeholder mat-icon { font-size: 64px; width: 64px; height: 64px; color: #1a237e; opacity: 0.5; }
-    .iframe-placeholder h3 { color: #1a237e; margin: 16px 0 8px; }
-    .iframe-placeholder p { max-width: 400px; line-height: 1.6; }
-    .hint { font-size: 13px; color: #999; font-style: italic; }
-
-    .iframe-mock {
-      margin-top: 24px; padding: 16px 32px;
-      border: 2px dashed #ccc; border-radius: 8px;
-      display: flex; flex-direction: column; gap: 4px;
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 16px; flex-shrink: 0;
     }
-    .mock-label { font-size: 11px; letter-spacing: 2px; color: #999; text-transform: uppercase; }
-    .mock-url { font-size: 13px; color: #1a237e; font-family: monospace; }
+    .header-left { display: flex; flex-direction: column; gap: 4px; }
+
+    .back {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--text-tertiary); text-decoration: none;
+      font-size: 13px; font-weight: 500; transition: color 200ms;
+      margin-bottom: 2px;
+    }
+    .back:hover { color: var(--ch-teal); }
+    .back mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+    h1 { margin: 0; font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+    .subtitle { margin: 0; font-size: 14px; color: var(--text-tertiary); }
+
+    .refresh-btn { color: var(--text-tertiary); }
+
+    .frame-wrap {
+      flex: 1; position: relative;
+      background: var(--surface-card); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); overflow: hidden;
+      min-height: 500px;
+    }
+
+    .frame-loading {
+      position: absolute; inset: 0; z-index: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; color: var(--text-tertiary); font-size: 14px;
+      background: var(--surface-card);
+    }
+
+    .form-frame { width: 100%; height: 100%; border: none; display: block; }
+    .form-frame.hidden { visibility: hidden; }
   `]
 })
-export class ContractNewComponent {}
+export class ContractNewComponent {
+  private sanitizer = inject(DomSanitizer);
+  private authService = inject(AuthService);
+
+  private _loading = signal(true);
+  private _reloadKey = signal(0);
+
+  loading = this._loading.asReadonly();
+
+  iframeSrc = computed(() => {
+    this._reloadKey(); // track for reload
+    const token = this.authService.edoclinkToken();
+    const url = token ? `${FORM_BASE_URL}&token=${encodeURIComponent(token)}` : FORM_BASE_URL;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
+
+  onLoad() {
+    this._loading.set(false);
+  }
+
+  reload() {
+    this._loading.set(true);
+    this._reloadKey.update(k => k + 1);
+  }
+}

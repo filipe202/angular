@@ -282,6 +282,12 @@ export class SignerContractViewComponent {
     this.contract = this.contractService.getContractById(this.contractId);
     this.workflow = this.workflowService.getWorkflow(this.contractId);
     this.progress = this.workflowService.getWorkflowProgress(this.contractId);
+    if (this.contractService.allContracts().length === 0) {
+      this.contractService.loadAll();
+    }
+    if (this.signatureService.allSignatures().length === 0) {
+      this.signatureService.loadForCurrentUser();
+    }
   }
 
   private userId = computed(() => this.authService.user()?.id ?? '');

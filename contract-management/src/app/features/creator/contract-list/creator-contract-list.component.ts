@@ -95,7 +95,9 @@ import { ContractStatus, CONTRACT_STATUS_LABELS, CONTRACT_TYPE_LABELS } from '..
   `]
 })
 export class CreatorContractListComponent {
-  constructor(private authService: AuthService, private contractService: ContractService) {}
+  constructor(private authService: AuthService, private contractService: ContractService) {
+    this.contractService.loadAll();
+  }
 
   statusFilter = signal('');
   columns = ['title', 'type', 'status', 'value', 'date'];

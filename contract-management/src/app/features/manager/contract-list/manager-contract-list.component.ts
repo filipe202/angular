@@ -118,7 +118,9 @@ import { ContractStatus, ContractType, CONTRACT_STATUS_LABELS, CONTRACT_TYPE_LAB
   `]
 })
 export class ManagerContractListComponent {
-  constructor(private contractService: ContractService) {}
+  constructor(private contractService: ContractService) {
+    this.contractService.loadAll();
+  }
 
   searchTerm = signal('');
   statusFilter = signal('');

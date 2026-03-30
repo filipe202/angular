@@ -136,6 +136,10 @@ export class CreatorContractDetailComponent {
     this.contract = this.contractService.getContractById(this.contractId);
     this.workflow = this.workflowService.getWorkflow(this.contractId);
     this.progress = this.workflowService.getWorkflowProgress(this.contractId);
+    // Ensure data is loaded (handles direct navigation / page refresh)
+    if (this.contractService.allContracts().length === 0) {
+      this.contractService.loadAll();
+    }
   }
 
   getTypeLabel(type: any) { return (CONTRACT_TYPE_LABELS as any)[type] ?? type; }

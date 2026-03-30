@@ -27,7 +27,7 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
           <div class="kpi-num">{{ pending().length }}</div>
           <div class="kpi-label">Pendentes</div>
           @if (pending().length > 0) {
-            <a class="kpi-link" routerLink="/signer/pending">Ver pendentes &rarr;</a>
+            <a class="kpi-link" routerLink="/app/pending">Ver pendentes &rarr;</a>
           }
         </div>
         <div class="kpi">
@@ -47,7 +47,7 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
         <div class="section animate-in animate-delay-3">
           <div class="section-head">
             <h2>Aguardam Assinatura</h2>
-            <a mat-stroked-button routerLink="/signer/pending">Ver todos</a>
+            <a mat-stroked-button routerLink="/app/pending">Ver todos</a>
           </div>
 
           <div class="sig-grid">
@@ -67,10 +67,10 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
                     }
                   </div>
                   <div class="sig-actions">
-                    <a mat-stroked-button [routerLink]="'/signer/contracts/' + sig.contractId" class="view-btn">
+                    <a mat-stroked-button [routerLink]="'/app/contracts/' + sig.contractId" class="view-btn">
                       <mat-icon>visibility</mat-icon> Ver
                     </a>
-                    <a mat-raised-button color="primary" [routerLink]="'/signer/sign/' + sig.id" class="sign-btn">
+                    <a mat-raised-button color="primary" [routerLink]="'/app/sign/' + sig.id" class="sign-btn">
                       <mat-icon>draw</mat-icon> Assinar
                     </a>
                   </div>
@@ -86,11 +86,11 @@ import { CurrencyPtPipe } from '../../../shared/pipes/currency-pt.pipe';
         <div class="section animate-in animate-delay-5">
           <div class="section-head">
             <h2>Assinados Recentemente</h2>
-            <a mat-stroked-button routerLink="/signer/history">Histórico</a>
+            <a mat-stroked-button routerLink="/app/history">Histórico</a>
           </div>
 
           @for (sig of signed().slice(0, 3); track sig.id) {
-            <a class="history-row" [routerLink]="'/signer/contracts/' + sig.contractId">
+            <a class="history-row" [routerLink]="'/app/contracts/' + sig.contractId">
               <div class="history-icon"><mat-icon>verified</mat-icon></div>
               <div class="history-info">
                 <span class="history-title">{{ sig.contractTitle }}</span>
@@ -201,5 +201,7 @@ export class SignerDashboardComponent {
     this.pending = computed(() => this.signatureService.getPendingByUser(this.userId())());
     this.signed = computed(() => this.signatureService.getHistoryByUser(this.userId())());
     this.allContracts = this.contractService.allContracts;
+    this.signatureService.loadForCurrentUser();
+    this.contractService.loadAll();
   }
 }
