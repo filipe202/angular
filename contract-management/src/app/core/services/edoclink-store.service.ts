@@ -53,6 +53,30 @@ export interface EdocFlow {
   stages: FlowStage[];
 }
 
+export interface EdocContract {
+  id: number;
+  title: string;
+  code: string;
+  type: string;
+  status: string;
+  description: string;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  startDate: string;
+  endDate: string;
+  value: number;
+  currency: string;
+  department: string;
+  parties: { name: string; role: string; taxId: string; contact: string }[];
+  documents: { id: number; name: string; size: string; type: string; uploadedAt: string; uploadedBy: number }[];
+  workflow: { id: number; name: string; type: 'approval' | 'signature' | 'review'; assigneeId: number; status: 'completed' | 'current' | 'pending' | 'rejected'; completedAt: string; comments: string }[];
+  tags: string[];
+  autoRenew: boolean;
+  paymentTerms: string;
+  notes: string;
+}
+
 export interface EdocNotification {
   id: number;
   text: string;
@@ -203,6 +227,178 @@ export class EdoclinkStoreService {
     ]}
   ];
 
+  readonly contracts: EdocContract[] = [
+    {
+      id: 1, title: 'IT Consulting Services Agreement', code: 'CTR-2024/001', type: 'Service', status: 'Pending Approval',
+      description: 'Master services agreement for IT consulting and software development support, covering architecture review, code audit, and technical advisory services for the digital transformation program.',
+      createdBy: 1, createdAt: '2024-03-10', updatedAt: '2024-03-22', startDate: '2024-04-01', endDate: '2025-03-31',
+      value: 125000, currency: 'EUR', department: 'IT',
+      parties: [
+        { name: 'ABC Consulting, S.A.', role: 'Service Provider', taxId: 'PT509123456', contact: 'joao.silva@abc-consulting.pt' },
+        { name: 'Our Company, Lda.', role: 'Client', taxId: 'PT507654321', contact: 'contracts@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 1, name: 'Contract_IT_Services_v3.pdf', size: '4.2 MB', type: 'pdf', uploadedAt: '2024-03-10', uploadedBy: 1 },
+        { id: 2, name: 'Technical_Annex.pdf', size: '1.8 MB', type: 'pdf', uploadedAt: '2024-03-10', uploadedBy: 1 },
+        { id: 3, name: 'Pricing_Schedule.xlsx', size: '320 KB', type: 'xlsx', uploadedAt: '2024-03-12', uploadedBy: 3 },
+        { id: 4, name: 'SLA_Document.docx', size: '890 KB', type: 'docx', uploadedAt: '2024-03-15', uploadedBy: 2 }
+      ],
+      workflow: [
+        { id: 1, name: 'Registration', type: 'review', assigneeId: 1, status: 'completed', completedAt: '2024-03-10', comments: 'Contract received and registered in the system.' },
+        { id: 2, name: 'Legal Review', type: 'review', assigneeId: 2, status: 'completed', completedAt: '2024-03-12', comments: 'Legally validated. No observations.' },
+        { id: 3, name: 'Financial Approval', type: 'approval', assigneeId: 1, status: 'current', completedAt: '', comments: '' },
+        { id: 4, name: 'Director Signature', type: 'signature', assigneeId: 8, status: 'pending', completedAt: '', comments: '' },
+        { id: 5, name: 'Archive', type: 'review', assigneeId: 6, status: 'pending', completedAt: '', comments: '' }
+      ],
+      tags: ['IT', 'Consulting', 'Digital Transformation'], autoRenew: true, paymentTerms: 'Net 30',
+      notes: 'Priority contract for the digital transformation program. Ensure all technical annexes are reviewed by IT team lead before final approval.'
+    },
+    {
+      id: 2, title: 'Office Lease Agreement - Lisbon HQ', code: 'CTR-2024/002', type: 'Lease', status: 'Active',
+      description: 'Commercial lease for the main headquarters office space at Avenida da Liberdade, including parking and common areas.',
+      createdBy: 6, createdAt: '2024-01-15', updatedAt: '2024-02-01', startDate: '2024-02-01', endDate: '2027-01-31',
+      value: 216000, currency: 'EUR', department: 'Administration',
+      parties: [
+        { name: 'Imobiliaria Lisboa, S.A.', role: 'Landlord', taxId: 'PT501234567', contact: 'contratos@imobiliaria.pt' },
+        { name: 'Our Company, Lda.', role: 'Tenant', taxId: 'PT507654321', contact: 'admin@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 5, name: 'Lease_Agreement_Signed.pdf', size: '5.1 MB', type: 'pdf', uploadedAt: '2024-02-01', uploadedBy: 6 },
+        { id: 6, name: 'Floor_Plans.pdf', size: '12.3 MB', type: 'pdf', uploadedAt: '2024-01-20', uploadedBy: 6 }
+      ],
+      workflow: [
+        { id: 1, name: 'Draft Review', type: 'review', assigneeId: 6, status: 'completed', completedAt: '2024-01-16', comments: 'Draft reviewed and approved.' },
+        { id: 2, name: 'Legal Validation', type: 'review', assigneeId: 2, status: 'completed', completedAt: '2024-01-20', comments: 'All clauses validated.' },
+        { id: 3, name: 'Board Approval', type: 'approval', assigneeId: 8, status: 'completed', completedAt: '2024-01-25', comments: 'Approved unanimously.' },
+        { id: 4, name: 'Signing', type: 'signature', assigneeId: 8, status: 'completed', completedAt: '2024-02-01', comments: 'Signed by both parties.' }
+      ],
+      tags: ['Real Estate', 'HQ', 'Lisbon'], autoRenew: true, paymentTerms: 'Monthly, 5th of each month',
+      notes: 'Annual rent review clause in section 7.3. Insurance must be renewed annually.'
+    },
+    {
+      id: 3, title: 'NDA - Project Phoenix', code: 'CTR-2024/003', type: 'NDA', status: 'Pending Signature',
+      description: 'Non-disclosure agreement for the confidential Project Phoenix initiative, covering all proprietary technology and business strategy information.',
+      createdBy: 5, createdAt: '2024-03-18', updatedAt: '2024-03-24', startDate: '2024-04-01', endDate: '2026-03-31',
+      value: 0, currency: 'EUR', department: 'IT',
+      parties: [
+        { name: 'TechPartner Global, Inc.', role: 'Receiving Party', taxId: 'US-EIN 82-1234567', contact: 'legal@techpartner.com' },
+        { name: 'Our Company, Lda.', role: 'Disclosing Party', taxId: 'PT507654321', contact: 'legal@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 7, name: 'NDA_Phoenix_Final.pdf', size: '1.2 MB', type: 'pdf', uploadedAt: '2024-03-20', uploadedBy: 5 },
+        { id: 8, name: 'Scope_Definition.docx', size: '450 KB', type: 'docx', uploadedAt: '2024-03-18', uploadedBy: 5 }
+      ],
+      workflow: [
+        { id: 1, name: 'Drafting', type: 'review', assigneeId: 5, status: 'completed', completedAt: '2024-03-18', comments: 'NDA drafted based on standard template.' },
+        { id: 2, name: 'Legal Review', type: 'review', assigneeId: 2, status: 'completed', completedAt: '2024-03-20', comments: 'Reviewed. Added clause 4.2 for IP protection.' },
+        { id: 3, name: 'Internal Signature', type: 'signature', assigneeId: 1, status: 'current', completedAt: '', comments: '' },
+        { id: 4, name: 'External Signature', type: 'signature', assigneeId: 8, status: 'pending', completedAt: '', comments: '' }
+      ],
+      tags: ['NDA', 'Confidential', 'Project Phoenix'], autoRenew: false, paymentTerms: 'N/A',
+      notes: 'Ensure the partner signs within 5 business days. Follow up with legal@techpartner.com if delayed.'
+    },
+    {
+      id: 4, title: 'Equipment Supply Contract', code: 'CTR-2024/004', type: 'Supply', status: 'Signed',
+      description: 'Supply of networking and server equipment for the new data center expansion project.',
+      createdBy: 5, createdAt: '2024-02-10', updatedAt: '2024-03-01', startDate: '2024-03-01', endDate: '2024-09-30',
+      value: 45000, currency: 'EUR', department: 'IT',
+      parties: [
+        { name: 'TechSupply, Lda.', role: 'Supplier', taxId: 'PT508765432', contact: 'vendas@techsupply.pt' },
+        { name: 'Our Company, Lda.', role: 'Buyer', taxId: 'PT507654321', contact: 'procurement@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 9, name: 'Supply_Contract_Signed.pdf', size: '3.8 MB', type: 'pdf', uploadedAt: '2024-03-01', uploadedBy: 5 },
+        { id: 10, name: 'Equipment_List.xlsx', size: '156 KB', type: 'xlsx', uploadedAt: '2024-02-15', uploadedBy: 5 }
+      ],
+      workflow: [
+        { id: 1, name: 'Registration', type: 'review', assigneeId: 5, status: 'completed', completedAt: '2024-02-10', comments: '' },
+        { id: 2, name: 'Validation', type: 'review', assigneeId: 2, status: 'completed', completedAt: '2024-02-14', comments: '' },
+        { id: 3, name: 'Approval', type: 'approval', assigneeId: 1, status: 'completed', completedAt: '2024-02-20', comments: 'Approved.' },
+        { id: 4, name: 'Signature', type: 'signature', assigneeId: 8, status: 'completed', completedAt: '2024-03-01', comments: 'Signed by both parties.' }
+      ],
+      tags: ['Equipment', 'Data Center'], autoRenew: false, paymentTerms: 'Net 60',
+      notes: 'Delivery expected in 3 batches. First batch by April 15.'
+    },
+    {
+      id: 5, title: 'HVAC Maintenance Agreement', code: 'CTR-2024/005', type: 'Service', status: 'Expired',
+      description: 'Annual maintenance contract for HVAC systems across all office locations.',
+      createdBy: 7, createdAt: '2023-03-01', updatedAt: '2024-03-01', startDate: '2023-04-01', endDate: '2024-03-31',
+      value: 18000, currency: 'EUR', department: 'Facilities',
+      parties: [
+        { name: 'ClimaTech, S.A.', role: 'Service Provider', taxId: 'PT506543210', contact: 'suporte@climatech.pt' },
+        { name: 'Our Company, Lda.', role: 'Client', taxId: 'PT507654321', contact: 'facilities@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 11, name: 'HVAC_Maintenance_Contract.pdf', size: '1.9 MB', type: 'pdf', uploadedAt: '2023-03-01', uploadedBy: 7 }
+      ],
+      workflow: [
+        { id: 1, name: 'Review', type: 'review', assigneeId: 7, status: 'completed', completedAt: '2023-03-05', comments: '' },
+        { id: 2, name: 'Approval', type: 'approval', assigneeId: 1, status: 'completed', completedAt: '2023-03-10', comments: 'Approved.' },
+        { id: 3, name: 'Signature', type: 'signature', assigneeId: 8, status: 'completed', completedAt: '2023-03-15', comments: '' }
+      ],
+      tags: ['HVAC', 'Maintenance', 'Facilities'], autoRenew: false, paymentTerms: 'Quarterly',
+      notes: 'Contract expired. Renewal under negotiation with updated terms.'
+    },
+    {
+      id: 6, title: 'Strategic Partnership Agreement', code: 'CTR-2024/006', type: 'Partnership', status: 'Draft',
+      description: 'Strategic partnership framework for joint ventures in the renewable energy sector across the Iberian peninsula.',
+      createdBy: 8, createdAt: '2024-03-20', updatedAt: '2024-03-25', startDate: '2024-05-01', endDate: '2029-04-30',
+      value: 500000, currency: 'EUR', department: 'Executive Board',
+      parties: [
+        { name: 'GreenEnergy Iberia, S.L.', role: 'Partner', taxId: 'ES-B12345678', contact: 'partnerships@greenenergy.es' },
+        { name: 'Our Company, Lda.', role: 'Partner', taxId: 'PT507654321', contact: 'ceo@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 12, name: 'Partnership_Draft_v1.docx', size: '2.3 MB', type: 'docx', uploadedAt: '2024-03-20', uploadedBy: 8 }
+      ],
+      workflow: [
+        { id: 1, name: 'Drafting', type: 'review', assigneeId: 8, status: 'current', completedAt: '', comments: '' }
+      ],
+      tags: ['Partnership', 'Renewable Energy', 'Strategic'], autoRenew: true, paymentTerms: 'As per project milestones',
+      notes: 'High priority. Board approval required before proceeding to legal review.'
+    },
+    {
+      id: 7, title: 'HR Software License Agreement', code: 'CTR-2024/007', type: 'Service', status: 'Rejected',
+      description: 'Annual license for HR management software platform including payroll, attendance, and performance modules.',
+      createdBy: 4, createdAt: '2024-03-05', updatedAt: '2024-03-18', startDate: '2024-04-01', endDate: '2025-03-31',
+      value: 35000, currency: 'EUR', department: 'Human Resources',
+      parties: [
+        { name: 'HRTech Solutions, Lda.', role: 'Licensor', taxId: 'PT509876543', contact: 'sales@hrtech.pt' },
+        { name: 'Our Company, Lda.', role: 'Licensee', taxId: 'PT507654321', contact: 'hr@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 13, name: 'License_Agreement.pdf', size: '2.1 MB', type: 'pdf', uploadedAt: '2024-03-05', uploadedBy: 4 }
+      ],
+      workflow: [
+        { id: 1, name: 'Submission', type: 'review', assigneeId: 4, status: 'completed', completedAt: '2024-03-05', comments: 'Submitted for review.' },
+        { id: 2, name: 'IT Review', type: 'review', assigneeId: 5, status: 'completed', completedAt: '2024-03-10', comments: 'Security concerns with data hosting location.' },
+        { id: 3, name: 'Approval', type: 'approval', assigneeId: 1, status: 'rejected', completedAt: '2024-03-18', comments: 'Rejected: vendor does not comply with GDPR hosting requirements. Please find alternative vendor.' }
+      ],
+      tags: ['Software', 'HR', 'License'], autoRenew: false, paymentTerms: 'Annual upfront',
+      notes: 'Rejected due to GDPR non-compliance. HR team exploring alternative vendors.'
+    },
+    {
+      id: 8, title: 'Cleaning Services Contract', code: 'CTR-2024/008', type: 'Service', status: 'Cancelled',
+      description: 'Daily cleaning services for office premises including sanitization and waste management.',
+      createdBy: 6, createdAt: '2024-01-10', updatedAt: '2024-02-28', startDate: '2024-02-01', endDate: '2025-01-31',
+      value: 24000, currency: 'EUR', department: 'Facilities',
+      parties: [
+        { name: 'LimpaPro, Lda.', role: 'Service Provider', taxId: 'PT502345678', contact: 'geral@limpapro.pt' },
+        { name: 'Our Company, Lda.', role: 'Client', taxId: 'PT507654321', contact: 'facilities@ourcompany.pt' }
+      ],
+      documents: [
+        { id: 14, name: 'Cleaning_Contract.pdf', size: '1.5 MB', type: 'pdf', uploadedAt: '2024-01-10', uploadedBy: 6 }
+      ],
+      workflow: [
+        { id: 1, name: 'Review', type: 'review', assigneeId: 6, status: 'completed', completedAt: '2024-01-12', comments: '' },
+        { id: 2, name: 'Approval', type: 'approval', assigneeId: 1, status: 'completed', completedAt: '2024-01-15', comments: 'Approved.' },
+        { id: 3, name: 'Signature', type: 'signature', assigneeId: 8, status: 'completed', completedAt: '2024-01-20', comments: '' }
+      ],
+      tags: ['Cleaning', 'Facilities'], autoRenew: false, paymentTerms: 'Monthly',
+      notes: 'Contract cancelled due to service quality issues. New vendor procurement in progress.'
+    }
+  ];
+
   readonly notifications: EdocNotification[] = [
     { id: 1, text: 'João Silva enviou etapa "Parecer" de PROC-2024/3456', time: '2024-03-25 14:45', read: false, type: 'flow', refId: 4 },
     { id: 2, text: 'Novo documento registado: Relatório Mensal Março', time: '2024-03-25 13:00', read: false, type: 'doc', refId: 7 },
@@ -269,6 +465,20 @@ export class EdoclinkStoreService {
 
   getUnreadNotifications(): number {
     return this.notifications.filter(n => !n.read).length;
+  }
+
+  getContract(id: number): EdocContract | undefined {
+    return this.contracts.find(c => c.id === id);
+  }
+
+  formatCurrency(value: number, currency: string): string {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value);
+  }
+
+  daysUntilExpiry(endDate: string): number {
+    const now = new Date();
+    const end = new Date(endDate);
+    return Math.ceil((end.getTime() - now.getTime()) / 86400000);
   }
 
   searchAll(query: string): { documents: EdocDocument[]; folders: EdocFolder[]; flows: EdocFlow[] } {
