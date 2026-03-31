@@ -1,122 +1,126 @@
-import { Component, computed } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
+import { Component, computed, inject } from '@angular/core';
 import { AuthService } from '../../../core/auth/auth.service';
+import { EdoclinkStoreService } from '../../../core/services/edoclink-store.service';
 
 @Component({
   selector: 'app-topbar',
-  imports: [MatIconModule, MatButtonModule, MatBadgeModule, MatMenuModule, MatDividerModule],
   template: `
-    <div class="topbar">
-      <div class="search-wrap">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input type="text" placeholder="Pesquisar contratos...">
-        <div class="search-shortcut">
-          <kbd>/</kbd>
+    <header class="header">
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Pesquisar documentos, pastas, fluxos..." class="search-input">
+        <kbd class="search-kbd">Ctrl+K</kbd>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn notification-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          @if (unreadCount() > 0) {
+            <span class="notif-badge">{{ unreadCount() }}</span>
+          }
+        </button>
+        <div class="avatar-area">
+          <div class="avatar">{{ initials() }}</div>
+          <span class="avatar-name">{{ userName() }}</span>
         </div>
       </div>
-      <div class="topbar-right">
-        <button mat-icon-button class="notif-btn" matBadge="3" matBadgeColor="warn" matBadgeSize="small">
-          <mat-icon>notifications_none</mat-icon>
-        </button>
-        <div class="sep"></div>
-        <button mat-button [matMenuTriggerFor]="userMenu" class="user-trigger">
-          <div class="user-avatar">{{ initials() }}</div>
-          <div class="user-meta">
-            <span class="user-name">{{ userName() }}</span>
-            <span class="user-dept">{{ userDept() }}</span>
-          </div>
-          <mat-icon class="caret">unfold_more</mat-icon>
-        </button>
-        <mat-menu #userMenu="matMenu">
-          <div class="menu-head">
-            <div class="menu-head-avatar">{{ initials() }}</div>
-            <div>
-              <div class="menu-head-name">{{ userName() }}</div>
-              <div class="menu-head-email">{{ userEmail() }}</div>
-            </div>
-          </div>
-          <mat-divider />
-          <button mat-menu-item (click)="logout()">
-            <mat-icon>logout</mat-icon><span>Terminar sessão</span>
-          </button>
-        </mat-menu>
-      </div>
-    </div>
+    </header>
   `,
   styles: [`
-    .topbar {
-      display: flex; align-items: center; height: 56px; padding: 0 24px;
-      background: var(--surface-card);
-      border-bottom: 1px solid var(--border-subtle);
+    .header {
+      height: var(--header-height);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
       gap: 16px;
+      flex-shrink: 0;
     }
-    .search-wrap {
-      display: flex; align-items: center; gap: 8px;
-      flex: 1; max-width: 400px; height: 36px; padding: 0 12px;
-      background: var(--surface-bg); border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      transition: all var(--t-fast);
+    .search-bar {
+      flex: 1;
+      max-width: 520px;
+      position: relative;
+      display: flex;
+      align-items: center;
     }
-    .search-wrap:focus-within {
-      border-color: var(--ch-teal);
-      box-shadow: 0 0 0 3px rgba(13,148,136,0.08);
-      background: var(--surface-card);
+    .search-icon {
+      width: 18px; height: 18px;
+      position: absolute; left: 14px;
+      color: var(--teal-500);
+      pointer-events: none;
     }
-    .search-icon { font-size: 17px; width: 17px; height: 17px; color: var(--text-tertiary); }
-    .search-wrap input {
-      flex: 1; border: none; outline: none; background: transparent;
-      font-size: 13px; color: var(--text-primary); font-family: var(--font-sans);
+    .search-input {
+      width: 100%;
+      padding: 10px 12px 10px 42px;
+      border: 2px solid rgba(10, 186, 181, 0.12);
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-family: inherit;
+      background: rgba(255,255,255,0.6);
+      transition: all 0.25s;
+      outline: none;
     }
-    .search-wrap input::placeholder { color: var(--text-tertiary); }
-    .search-shortcut kbd {
-      font-size: 11px; padding: 1px 6px;
-      background: var(--surface-card); border: 1px solid var(--border-light);
-      border-radius: 4px; color: var(--text-tertiary);
-      font-family: var(--font-sans); font-weight: 500;
+    .search-input:focus {
+      border-color: var(--teal-400);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(10, 186, 181, 0.08);
     }
-
-    .topbar-right { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-    .notif-btn { color: var(--text-tertiary); }
-    .notif-btn:hover { color: var(--text-secondary); }
-    .sep { width: 1px; height: 20px; background: var(--border-light); margin: 0 4px; }
-
-    .user-trigger {
-      display: flex !important; align-items: center; gap: 8px;
-      padding: 4px 8px 4px 4px !important; border-radius: var(--radius-sm) !important;
-      height: auto !important; line-height: normal !important;
+    .search-input::placeholder { color: var(--gray-400); }
+    .search-kbd {
+      position: absolute; right: 12px;
+      padding: 3px 8px;
+      background: rgba(10, 186, 181, 0.08);
+      border: 1px solid rgba(10, 186, 181, 0.15);
+      border-radius: 6px;
+      font-size: 11px; color: var(--teal-600);
+      font-family: inherit; pointer-events: none;
+      font-weight: 500;
     }
-    .user-avatar {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: var(--ch-navy);
-      color: var(--ch-teal-light); font-size: 11px; font-weight: 800;
+    .header-actions {
+      display: flex; align-items: center; gap: 10px; margin-left: auto;
+    }
+    .header-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--gray-500); position: relative;
+      padding: 8px; border-radius: var(--radius-sm);
+      transition: all 0.15s;
+    }
+    .header-btn:hover { background: rgba(10, 186, 181, 0.08); color: var(--teal-600); }
+    .notif-badge {
+      position: absolute; top: 2px; right: 2px;
+      background: linear-gradient(135deg, var(--orange-400), var(--error));
+      color: white; font-size: 10px; font-weight: 700;
+      padding: 1px 5px; border-radius: 10px;
+      min-width: 16px; text-align: center;
+      animation: pulse 2s infinite;
+    }
+    .avatar-area {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; padding: 5px 10px 5px 5px;
+      border-radius: var(--radius-pill);
+      transition: background 0.15s;
+    }
+    .avatar-area:hover { background: rgba(10, 186, 181, 0.08); }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal-400), var(--orange-400));
+      color: white; font-size: 12px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
-      letter-spacing: 0.5px;
+      box-shadow: 0 2px 10px rgba(10, 186, 181, 0.25);
     }
-    .user-meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
-    .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-    .user-dept { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
-    .caret { font-size: 16px !important; width: 16px !important; height: 16px !important; color: var(--text-tertiary); }
-
-    .menu-head { display: flex; gap: 10px; align-items: center; padding: 12px 16px; }
-    .menu-head-avatar {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: var(--ch-navy); color: var(--ch-teal-light);
-      font-size: 12px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .menu-head-name { font-weight: 600; font-size: 14px; color: var(--text-primary); }
-    .menu-head-email { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+    .avatar-name { font-size: 13px; font-weight: 600; color: var(--gray-700); }
   `]
 })
 export class TopbarComponent {
-  constructor(private authService: AuthService) {}
-  userName = computed(() => this.authService.user()?.name ?? '');
-  userEmail = computed(() => this.authService.user()?.email ?? '');
-  userDept = computed(() => this.authService.user()?.department ?? '');
-  initials = computed(() => this.userName().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase());
-  logout() { this.authService.logout(); }
+  private authService = inject(AuthService);
+  private store = inject(EdoclinkStoreService);
+
+  userName = computed(() => this.authService.user()?.name ?? 'Filipe Correia');
+  initials = computed(() => {
+    const name = this.userName();
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  });
+  unreadCount = computed(() => this.store.getUnreadNotifications());
 }

@@ -7,7 +7,7 @@ import { AuthService } from './core/auth/auth.service';
 const rootRedirect = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  return router.parseUrl(auth.isAuthenticated() ? '/app/dashboard' : '/login');
+  return router.parseUrl(auth.isAuthenticated() ? '/app/home' : '/login');
 };
 
 export const routes: Routes = [
@@ -21,20 +21,19 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./shared/components/layout/shell.component').then(m => m.ShellComponent),
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard',      loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
-      {
-        path: 'contracts',
-        children: [
-          { path: '', loadComponent: () => import('./features/contracts/contract-list/contract-list.component').then(m => m.ContractListComponent) },
-          { path: 'new', loadComponent: () => import('./features/creator/contract-new/contract-new.component').then(m => m.ContractNewComponent) },
-          { path: ':id', loadComponent: () => import('./features/contracts/contract-detail/contract-detail.component').then(m => m.ContractDetailComponent) },
-        ]
-      },
-      { path: 'approvals',      loadComponent: () => import('./features/manager/approval-queue/approval-queue.component').then(m => m.ApprovalQueueComponent) },
-      { path: 'pending',        loadComponent: () => import('./features/signer/pending-signatures/pending-signatures.component').then(m => m.PendingSignaturesComponent) },
-      { path: 'sign/:id',       loadComponent: () => import('./features/signer/sign-contract/sign-contract.component').then(m => m.SignContractComponent) },
-      { path: 'history',        loadComponent: () => import('./features/signer/signature-history/signature-history.component').then(m => m.SignatureHistoryComponent) },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home',       loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent) },
+      { path: 'documents',  loadComponent: () => import('./features/documents/documents.component').then(m => m.DocumentsComponent) },
+      { path: 'folders',    loadComponent: () => import('./features/folders/folders.component').then(m => m.FoldersComponent) },
+      { path: 'flows',      loadComponent: () => import('./features/flows/flows.component').then(m => m.FlowsComponent) },
+      { path: 'dashboard',  loadComponent: () => import('./features/edoc-dashboard/edoc-dashboard.component').then(m => m.EdocDashboardComponent) },
+      { path: 'search',     loadComponent: () => import('./features/search/search.component').then(m => m.SearchComponent) },
+      { path: 'settings',   loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent) },
+      // Legacy routes - redirect to new structure
+      { path: 'contracts',  redirectTo: 'documents', pathMatch: 'full' },
+      { path: 'approvals',  redirectTo: 'flows', pathMatch: 'full' },
+      { path: 'pending',    redirectTo: 'flows', pathMatch: 'full' },
+      { path: 'history',    redirectTo: 'flows', pathMatch: 'full' },
     ]
   },
   { path: '**', redirectTo: 'login' }

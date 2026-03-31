@@ -94,6 +94,6 @@ export class AuthService {
   }
 
   getRedirectRoute(): string {
-    return this.currentUser() ? '/app/dashboard' : '/login';
+    return this.currentUser() ? '/app/home' : '/login';
   }
 }
