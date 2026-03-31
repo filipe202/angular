@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>edoclink v9 — Mockup Completo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-grid.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-theme-alpine.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ==================== LOGIN ==================== -->
+  <div id="login-page" class="login-page">
+    <div class="login-container">
+      <div class="login-logo-area">
+        <img src="../edoclink.png" alt="edoclink" class="login-logo">
+        <p class="login-tagline">Gestão documental inteligente</p>
+      </div>
+      <div class="login-card">
+        <h2>Bem-vindo de volta</h2>
+        <p class="login-subtitle">Introduza as suas credenciais para continuar</p>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="nome@empresa.pt" value="filipe.correia@link.pt">
+          </div>
+          <div class="form-group">
+            <label for="password">Palavra-passe</label>
+            <input type="password" id="password" placeholder="••••••••" value="password">
+          </div>
+          <button type="submit" class="btn-primary btn-full">Entrar</button>
+        </form>
+        <p class="login-footer">Protegido por <strong>Keycloak SSO</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APP ==================== -->
+  <div id="app" class="app-layout hidden">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <img src="../edoclink.png" alt="edoclink" class="sidebar-logo">
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="home">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span class="nav-label">Início</span>
+        </a>
+        <a href="#" class="nav-item" data-page="documents">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="nav-label">Documentos</span>
+        </a>
+        <a href="#" class="nav-item" data-page="folders">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          <span class="nav-label">Pastas</span>
+        </a>
+        <a href="#" class="nav-item" data-page="flows">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="14"/><circle cx="12" cy="19" r="3"/><path d="M6 19h0M18 19h0" stroke-linecap="round"/><path d="M12 14l-6 2m6-2l6 2"/></svg>
+          <span class="nav-label">Fluxos</span>
+        </a>
+        <a href="#" class="nav-item" data-page="dashboard">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <div class="nav-separator"></div>
+        <a href="#" class="nav-item" data-page="search">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="nav-label">Pesquisa</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="#" class="nav-item" data-page="settings">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span class="nav-label">Definições</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-area">
+      <!-- HEADER -->
+      <header class="header">
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="search-bar" id="search-bar">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Pesquisar documentos, pastas, fluxos..." class="search-input" id="global-search">
+          <kbd class="search-kbd">Ctrl+K</kbd>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn notification-btn" id="notif-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge">5</span>
+          </button>
+          <div class="avatar-area" id="avatar-area">
+            <div class="avatar">FC</div>
+            <span class="avatar-name">Filipe Correia</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGES -->
+      <div class="page-content" id="page-content">
+
+        <!-- ============ HOME ============ -->
+        <div id="page-home" class="page active"></div>
+
+        <!-- ============ DOCUMENTS ============ -->
+        <div id="page-documents" class="page"></div>
+
+        <!-- ============ FOLDERS ============ -->
+        <div id="page-folders" class="page"></div>
+
+        <!-- ============ FLOWS ============ -->
+        <div id="page-flows" class="page"></div>
+
+        <!-- ============ DASHBOARD ============ -->
+        <div id="page-dashboard" class="page"></div>
+
+        <!-- ============ SEARCH ============ -->
+        <div id="page-search" class="page"></div>
+
+        <!-- ============ SETTINGS ============ -->
+        <div id="page-settings" class="page">
+          <h1 class="page-title">Definições</h1>
+          <p style="color:var(--gray-500);margin-bottom:24px">Gerir as suas preferências pessoais</p>
+          <div class="settings-grid">
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><h3>Perfil</h3><p>Nome, email, idioma</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><h3>Notificações</h3><p>Gerir alertas e avisos</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><h3>Assinaturas</h3><p>Assinaturas digitais</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg><h3>Delegações</h3><p>Delegar tarefas a colegas</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><h3>Percursos Pessoais</h3><p>Rotas de workflow favoritas</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><h3>Templates</h3><p>Modelos de ficheiros</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M4 7h16M4 12h16M4 17h10"/></svg><h3>Textos Pré-definidos</h3><p>Textos rápidos para etapas</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><h3>Favoritos</h3><p>Gerir lista de favoritos</p></a>
+            <a href="#" class="settings-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><h3>Etiquetas</h3><p>Gerir etiquetas pessoais</p></a>
+          </div>
+        </div>
+
+        <!-- ============ DOC DETAIL ============ -->
+        <div id="page-doc-detail" class="page"></div>
+
+        <!-- ============ FLOW DETAIL ============ -->
+        <div id="page-flow-detail" class="page"></div>
+
+        <!-- ============ FILE VIEWER ============ -->
+        <div id="page-file-viewer" class="page"></div>
+
+      </div>
+    </main>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Create Document Modal -->
+    <div id="create-doc-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('create-doc-modal')">
+      <div class="modal-dialog modal-large">
+        <div class="modal-header">
+          <h2>Novo Documento</h2>
+          <button class="panel-close" onclick="closeModal('create-doc-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-form">
+            <div class="form-row">
+              <div class="form-group"><label>Tipo de Documento *</label><select id="create-doc-type"><option value="">Selecionar tipo...</option><option>Correspondência Recebida</option><option>Correspondência Expedida</option><option>Documento Interno</option><option>Contrato</option><option>Ata</option><option>Memorando</option></select></div>
+              <div class="form-group"><label>Classificação</label><select id="create-doc-class"><option value="">Selecionar classificação...</option><option>Financeiro > Relatórios</option><option>Financeiro > Orçamentos</option><option>Administração > Atas</option><option>Administração > Ofícios</option><option>RH > Contratos</option></select></div>
+            </div>
+            <div class="form-group"><label>Assunto *</label><input type="text" id="create-doc-title" placeholder="Breve descrição do documento..."></div>
+            <div class="form-group"><label>Observações</label><textarea rows="3" id="create-doc-obs" placeholder="Observações adicionais..."></textarea></div>
+            <div class="form-row">
+              <div class="form-group"><label>Entidade</label><div class="input-with-btn"><input type="text" id="create-doc-entity" placeholder="Pesquisar entidade..."><button class="btn-icon" title="Pesquisar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div></div>
+              <div class="form-group"><label>Pasta</label><div class="input-with-btn"><input type="text" id="create-doc-folder" placeholder="Associar a pasta..."><button class="btn-icon" title="Pesquisar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div></div>
+            </div>
+            <div class="form-section-divider">Ficheiros</div>
+            <div class="upload-area" id="upload-area">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="color:var(--teal-500)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p><strong>Arraste ficheiros</strong> ou clique para selecionar</p>
+              <p class="upload-hint">PDF, Word, Excel, imagens — máx. 50 MB por ficheiro</p>
+            </div>
+            <div class="form-section-divider">Campos Adicionais</div>
+            <div class="form-row">
+              <div class="form-group"><label>N.º de Entrada</label><input type="text" id="create-doc-entry" placeholder="ENT-2024/..."></div>
+              <div class="form-group"><label>Departamento</label><select id="create-doc-dept"><option>Financeiro</option><option>Administração</option><option>RH</option><option>Jurídico</option><option>TI</option></select></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Valor (€)</label><input type="number" id="create-doc-value" placeholder="0,00"></div>
+              <div class="form-group"><label>Confidencial</label><div class="toggle-group"><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label><span>Sim</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" onclick="closeModal('create-doc-modal')">Cancelar</button>
+          <button class="btn-outline">Guardar Rascunho</button>
+          <button class="btn-primary" id="create-doc-submit">Registar Documento</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Folder Modal -->
+    <div id="create-folder-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('create-folder-modal')">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2>Nova Pasta</h2>
+          <button class="panel-close" onclick="closeModal('create-folder-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-form">
+            <div class="form-group"><label>Classe / Tipo de Pasta *</label><select id="create-folder-class"><option value="">Selecionar classe...</option><option>Contratos > Prestação de Serviços</option><option>Contratos > Fornecimento</option><option>Correspondência</option><option>Projetos</option><option>Recursos Humanos</option></select></div>
+            <div class="form-group"><label>Assunto *</label><input type="text" id="create-folder-title" placeholder="Assunto da pasta..."></div>
+            <div class="form-group"><label>Pasta Pai</label><div class="input-with-btn"><input type="text" placeholder="(Raiz)" value="Contratos / 2024"><button class="btn-icon" title="Alterar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div></div>
+            <div class="form-group"><label>Observações</label><textarea rows="3" id="create-folder-obs" placeholder="Observações..."></textarea></div>
+            <div class="form-group"><label>Prazo de Execução</label><input type="date" id="create-folder-deadline"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" onclick="closeModal('create-folder-modal')">Cancelar</button>
+          <button class="btn-primary" id="create-folder-submit">Criar Pasta</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Flow Modal -->
+    <div id="create-flow-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('create-flow-modal')">
+      <div class="modal-dialog modal-large">
+        <div class="modal-header">
+          <h2>Novo Fluxo</h2>
+          <button class="panel-close" onclick="closeModal('create-flow-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-form">
+            <div class="form-row">
+              <div class="form-group"><label>Tipo de Fluxo *</label><select id="create-flow-type"><option value="">Selecionar tipo...</option><option>Aprovação</option><option>Parecer</option><option>Distribuição</option><option>Difusão</option><option>Assinatura</option></select></div>
+              <div class="form-group"><label>Documento Associado</label><div class="input-with-btn"><input type="text" id="create-flow-doc" placeholder="Pesquisar documento..."><button class="btn-icon" title="Pesquisar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div></div>
+            </div>
+            <div class="form-group"><label>Assunto *</label><input type="text" id="create-flow-title" placeholder="Assunto do fluxo..."></div>
+            <div class="form-group"><label>Observações</label><textarea rows="2" id="create-flow-obs" placeholder="Observações iniciais..."></textarea></div>
+            <div class="form-group"><label>Pasta</label><div class="input-with-btn"><input type="text" placeholder="Associar a pasta..."><button class="btn-icon" title="Pesquisar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div></div>
+            <div class="form-section-divider">Percurso / Etapas</div>
+            <div class="route-builder">
+              <div class="route-step-add">
+                <div class="route-step">
+                  <span class="route-step-num">1</span>
+                  <div class="route-step-content">
+                    <div class="input-with-btn"><input type="text" placeholder="Pesquisar utilizador ou grupo..." value="João Silva"><button class="btn-icon" title="Pesquisar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
+                    <select class="route-action-select"><option>Parecer</option><option>Aprovação</option><option>Assinatura</option><option>Conhecimento</option></select>
+                  </div>
+                  <button class="btn-icon" title="Remover" style="color:var(--error)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="route-connector-line"></div>
+                <div class="route-step">
+                  <span class="route-step-num">2</span>
+                  <div class="route-step-content">
+                    <div class="input-with-btn"><input type="text" placeholder="Pesquisar utilizador ou grupo..." value="Dir. Geral"><button class="btn-icon" title="Pesquisar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
+                    <select class="route-action-select"><option>Aprovação</option><option>Parecer</option><option>Assinatura</option><option>Conhecimento</option></select>
+                  </div>
+                  <button class="btn-icon" title="Remover" style="color:var(--error)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="route-connector-line"></div>
+                <button class="btn-add-step">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Adicionar etapa
+                </button>
+              </div>
+              <div class="route-options">
+                <button class="btn-text">Carregar percurso pessoal</button>
+                <button class="btn-text">Adicionar paralelo</button>
+              </div>
+            </div>
+            <div class="form-section-divider">Ficheiros da Etapa</div>
+            <div class="upload-area small" id="flow-upload-area">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--teal-500)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p>Arraste ficheiros ou clique para adicionar</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" onclick="closeModal('create-flow-modal')">Cancelar</button>
+          <button class="btn-primary" id="create-flow-submit">Criar e Enviar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMAND PALETTE -->
+    <div id="command-palette" class="command-palette">
+      <div class="command-overlay" onclick="closeCommandPalette()"></div>
+      <div class="command-dialog">
+        <div class="command-search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="command-input" placeholder="Pesquisar ou executar ação..." id="command-input">
+        </div>
+        <div class="command-results">
+          <div class="command-group"><div class="command-group-title">Ações Rápidas</div>
+            <div class="command-item" data-command="create-doc">+ Novo Documento</div>
+            <div class="command-item" data-command="create-folder">+ Nova Pasta</div>
+            <div class="command-item" data-command="create-flow">+ Novo Fluxo</div>
+          </div>
+          <div class="command-group"><div class="command-group-title">Navegar</div>
+            <div class="command-item" data-command="nav-home">Ir para Início</div>
+            <div class="command-item" data-command="nav-documents">Ir para Documentos</div>
+            <div class="command-item" data-command="nav-folders">Ir para Pastas</div>
+            <div class="command-item" data-command="nav-flows">Ir para Fluxos</div>
+            <div class="command-item" data-command="nav-dashboard">Ir para Dashboard</div>
+          </div>
+        </div>
+        <div class="command-footer"><span><kbd>↑↓</kbd> navegar</span><span><kbd>↵</kbd> selecionar</span><span><kbd>Esc</kbd> fechar</span></div>
+      </div>
+    </div>
+
+    <!-- AI BAR -->
+    <div class="ai-bar" id="ai-bar">
+      <button class="ai-toggle" id="ai-toggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a10 10 0 0110 10 10 10 0 01-10 10A10 10 0 012 12 10 10 0 0112 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        <span class="ai-label">Assistente edoclink</span>
+      </button>
+    </div>
+
+  </div><!-- /app -->
+  <script src="app.js"></script>
+</body>
+</html>

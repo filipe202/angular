@@ -1,0 +1,154 @@
+/* ============================================
+   edoclink v9 — VIBRANT Design System
+   Colorful gradients + Glassmorphism
+   ============================================ */
+@use '@angular/material' as mat;
+
+:root {
+  /* Brand */
+  --teal-50:  #E6FFFE;
+  --teal-100: #B3FFFC;
+  --teal-200: #66FFF8;
+  --teal-300: #33EDE8;
+  --teal-400: #14D4CF;
+  --teal-500: #0ABAB5;
+  --teal-600: #089E9A;
+  --teal-700: #067A77;
+
+  --orange-50:  #FFF8EE;
+  --orange-100: #FFEDD5;
+  --orange-200: #FED7AA;
+  --orange-300: #FDBA74;
+  --orange-400: #F5A623;
+  --orange-500: #F59E0B;
+  --orange-600: #D97706;
+
+  /* Neutrals */
+  --gray-50:  #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-400: #94A3B8;
+  --gray-500: #64748B;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1E293B;
+  --gray-900: #0F172A;
+
+  /* Semantic */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error:   #EF4444;
+  --info:    #0ABAB5;
+  --purple:  #8B5CF6;
+  --pink:    #EC4899;
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px rgba(10, 186, 181, 0.08);
+  --glass-blur: blur(16px);
+
+  /* Vibrant surfaces */
+  --surface-gradient: linear-gradient(135deg, #E6FFFE 0%, #FFF8EE 50%, #F3E8FF 100%);
+  --sidebar-gradient: linear-gradient(180deg, #0ABAB5 0%, #089E9A 40%, #067A77 100%);
+  --hero-gradient: linear-gradient(135deg, #0ABAB5 0%, #14D4CF 40%, #F5A623 100%);
+
+  /* Layout */
+  --sidebar-width: 230px;
+  --header-height: 64px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 50px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(10, 186, 181, 0.06);
+  --shadow-md: 0 4px 16px rgba(10, 186, 181, 0.1);
+  --shadow-lg: 0 8px 30px rgba(10, 186, 181, 0.12);
+  --shadow-xl: 0 16px 50px rgba(10, 186, 181, 0.15);
+  --shadow-glow-teal: 0 0 30px rgba(10, 186, 181, 0.25);
+  --shadow-glow-orange: 0 0 30px rgba(245, 166, 35, 0.2);
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-fast: 150ms var(--ease-out);
+  --t-normal: 250ms var(--ease-out);
+  --t-slow: 400ms var(--ease-out);
+}
+
+/* === Reset === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (primary: mat.$cyan-palette, tertiary: mat.$green-palette),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gray-800);
+  background: var(--surface-gradient);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100vh;
+  margin: 0;
+}
+
+a { color: var(--teal-600); text-decoration: none; }
+a:hover { color: var(--teal-700); }
+.hidden { display: none !important; }
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c5cdd8; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* === Animations === */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes timelinePulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(10,186,181,0.2), 0 0 15px rgba(10,186,181,0.3); } 50% { box-shadow: 0 0 0 8px rgba(10,186,181,0.1), 0 0 20px rgba(10,186,181,0.15); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.animate-in { animation: fadeInUp 0.5s var(--ease-out) both; }
+@for $i from 1 through 12 {
+  .animate-delay-#{$i} { animation-delay: #{$i * 70}ms; }
+}
+
+/* === Angular Material Overrides === */
+.mat-mdc-card {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border: 1px solid var(--glass-border);
+}
+
+.mat-mdc-raised-button, .mat-mdc-unelevated-button {
+  border-radius: var(--radius-pill) !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-raised-button.mat-primary {
+  background: linear-gradient(135deg, var(--teal-500), var(--teal-600)) !important;
+  box-shadow: 0 4px 15px rgba(10, 186, 181, 0.3) !important;
+}
